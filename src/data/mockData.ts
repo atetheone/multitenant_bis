@@ -52,9 +52,10 @@ export const users: User[] = [
   },
   {
     id: '6',
-    name: 'Admin Système',
+    name: 'Super Admin JefJel',
     email: 'admin@jeffel.com',
     role: 'super-admin',
+    avatar: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600',
     isActive: true,
     createdAt: '2023-01-01T00:00:00Z',
   }
