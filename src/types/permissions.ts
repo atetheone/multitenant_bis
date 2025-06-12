@@ -1,5 +1,5 @@
 export type Permission = 
-  // Gestion des tenants
+  // Gestion des tenants (Super-Admin uniquement)
   | 'create_tenant'
   | 'edit_tenant'
   | 'delete_tenant'
@@ -44,7 +44,12 @@ export type Permission =
   // Paramètres système
   | 'manage_settings'
   | 'manage_payment_methods'
-  | 'manage_delivery_settings';
+  | 'manage_delivery_settings'
+  
+  // Gestion du marketplace (Super-Admin et Admin Marketplace)
+  | 'view_marketplace_analytics'
+  | 'manage_commissions'
+  | 'moderate_content';
 
 export interface Role {
   id: string;

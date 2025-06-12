@@ -4,7 +4,7 @@ export const systemRoles: Role[] = [
   {
     id: 'super-admin',
     name: 'Super Administrateur',
-    description: 'Accès complet au système, création de tenants',
+    description: 'Accès complet au système, gestion du marketplace et création de tenants',
     isSystemRole: true,
     permissions: [
       'create_tenant',
@@ -32,13 +32,16 @@ export const systemRoles: Role[] = [
       'export_data',
       'manage_settings',
       'manage_payment_methods',
-      'manage_delivery_settings'
+      'manage_delivery_settings',
+      'view_marketplace_analytics',
+      'manage_commissions',
+      'moderate_content'
     ]
   },
   {
-    id: 'tenant-admin',
-    name: 'Administrateur Tenant',
-    description: 'Gestion complète d\'un tenant spécifique',
+    id: 'admin',
+    name: 'Administrateur',
+    description: 'Gestion complète d\'un tenant spécifique ou du marketplace',
     isSystemRole: true,
     permissions: [
       'create_user',
@@ -67,31 +70,15 @@ export const systemRoles: Role[] = [
     ]
   },
   {
-    id: 'seller',
-    name: 'Vendeur',
-    description: 'Gestion des produits et commandes de base',
-    isSystemRole: true,
-    permissions: [
-      'create_product',
-      'edit_product',
-      'view_products',
-      'manage_inventory',
-      'view_orders',
-      'edit_order_status',
-      'view_customers',
-      'view_customer_orders',
-      'view_analytics'
-    ]
-  },
-  {
     id: 'manager',
     name: 'Gestionnaire',
-    description: 'Représentant du vendeur avec permissions personnalisables',
+    description: 'Représentant du tenant avec permissions personnalisables',
     isSystemRole: true,
     permissions: [
       'view_products',
       'view_orders',
-      'view_customers'
+      'view_customers',
+      'view_analytics'
     ]
   },
   {

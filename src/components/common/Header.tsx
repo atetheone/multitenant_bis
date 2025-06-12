@@ -42,10 +42,10 @@ const Header: React.FC = () => {
   const authLinks = currentUser
     ? [
         { 
-          title: currentUser.role === 'seller' || currentUser.role === 'admin' 
+          title: currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery'
             ? 'Tableau de Bord' 
             : 'Mes Commandes', 
-          path: currentUser.role === 'seller' || currentUser.role === 'admin' 
+          path: currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery'
             ? '/dashboard' 
             : '/customer/orders' 
         },
@@ -114,7 +114,7 @@ const Header: React.FC = () => {
                     <p className="text-xs text-gray-500">{currentUser.email}</p>
                   </div>
                   
-                  {(currentUser.role === 'seller' || currentUser.role === 'admin') && (
+                  {(currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery') && (
                     <Link
                       to="/dashboard"
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -219,7 +219,7 @@ const Header: React.FC = () => {
                     </div>
                   </div>
                   
-                  {(currentUser.role === 'seller' || currentUser.role === 'admin') && (
+                  {(currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery') && (
                     <Link
                       to="/dashboard"
                       className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"

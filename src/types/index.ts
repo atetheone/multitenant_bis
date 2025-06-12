@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'customer' | 'seller' | 'admin' | 'super-admin' | 'manager' | 'delivery';
+  role: 'customer' | 'admin' | 'super-admin' | 'manager' | 'delivery';
   avatar?: string;
   phone?: string;
   address?: Address;
@@ -17,12 +17,14 @@ export interface Tenant {
   name: string;
   description: string;
   logo: string;
-  ownerId: string;
+  type: 'marketplace' | 'seller'; // Type de tenant
+  ownerId?: string; // Propriétaire du tenant (pour les vendeurs)
   createdAt: string;
-  rating: number;
+  rating?: number; // Seulement pour les vendeurs
   isActive: boolean;
   deliveryZones: string[];
   settings: TenantSettings;
+  isDefault?: boolean; // Pour identifier le tenant marketplace (tenant 0)
 }
 
 export interface TenantSettings {
@@ -30,6 +32,7 @@ export interface TenantSettings {
   maxManagers: number;
   autoAssignDeliveries: boolean;
   requireOrderConfirmation: boolean;
+  commissionRate?: number; // Taux de commission pour le marketplace
 }
 
 export interface Product {
@@ -69,6 +72,7 @@ export interface Order {
   assignedDeliveryUser?: string; // ID du livreur assigné
   deliveryNotes?: string;
   processedBy?: string; // ID de l'utilisateur qui a traité la commande
+  marketplaceCommission?: number; // Commission du marketplace
 }
 
 export interface Address {
@@ -99,6 +103,8 @@ export interface DashboardStats {
   monthlyGrowth: number;
   assignedDeliveries?: number; // Pour les livreurs
   completedDeliveries?: number; // Pour les livreurs
+  totalTenants?: number; // Pour le super-admin
+  totalCommissions?: number; // Pour le marketplace
 }
 
 export interface DeliveryAssignment {

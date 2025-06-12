@@ -14,7 +14,7 @@ export const users: User[] = [
     id: '2',
     name: 'Marie Martin',
     email: 'marie@exemple.com',
-    role: 'seller',
+    role: 'admin', // Admin du tenant Tech Paradise
     avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=600',
     tenantId: '1',
     isActive: true,
@@ -24,7 +24,7 @@ export const users: User[] = [
     id: '3',
     name: 'Pierre Durand',
     email: 'pierre@exemple.com',
-    role: 'admin',
+    role: 'admin', // Admin du tenant Éco Produits
     avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=600',
     tenantId: '2',
     isActive: true,
@@ -46,7 +46,7 @@ export const users: User[] = [
     email: 'fatou@exemple.com',
     role: 'manager',
     avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=600',
-    tenantId: '1',
+    tenantId: '1', // Gestionnaire pour Tech Paradise
     isActive: true,
     createdAt: '2023-03-15T11:00:00Z',
   },
@@ -56,6 +56,17 @@ export const users: User[] = [
     email: 'admin@jeffel.com',
     role: 'super-admin',
     avatar: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600',
+    tenantId: '0', // Associé au tenant marketplace
+    isActive: true,
+    createdAt: '2023-01-01T00:00:00Z',
+  },
+  {
+    id: '7',
+    name: 'Admin Marketplace',
+    email: 'marketplace@jeffel.com',
+    role: 'admin',
+    avatar: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=600',
+    tenantId: '0', // Admin du marketplace
     isActive: true,
     createdAt: '2023-01-01T00:00:00Z',
   }
@@ -63,11 +74,30 @@ export const users: User[] = [
 
 export const tenants: Tenant[] = [
   {
+    id: '0',
+    name: 'JefJel Marketplace',
+    description: 'Plateforme e-commerce multilocataire du Sénégal - Le marketplace principal qui héberge tous les vendeurs.',
+    logo: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600',
+    type: 'marketplace',
+    createdAt: '2023-01-01T00:00:00Z',
+    isActive: true,
+    isDefault: true,
+    deliveryZones: ['1', '2', '3', '4', '5', '6', '7'], // Toutes les zones
+    settings: {
+      allowCustomManagers: true,
+      maxManagers: 10,
+      autoAssignDeliveries: true,
+      requireOrderConfirmation: false,
+      commissionRate: 5 // 5% de commission
+    }
+  },
+  {
     id: '1',
     name: 'Tech Paradise',
     description: 'Gadgets technologiques premium et accessoires pour tous vos besoins.',
     logo: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=600',
-    ownerId: '2',
+    type: 'seller',
+    ownerId: '2', // Marie Martin est la propriétaire
     createdAt: '2023-01-15T08:00:00Z',
     rating: 4.8,
     isActive: true,
@@ -84,7 +114,8 @@ export const tenants: Tenant[] = [
     name: 'Éco Produits',
     description: 'Produits durables et écologiques pour les consommateurs conscients.',
     logo: 'https://images.pexels.com/photos/6758773/pexels-photo-6758773.jpeg?auto=compress&cs=tinysrgb&w=600',
-    ownerId: '3',
+    type: 'seller',
+    ownerId: '3', // Pierre Durand est le propriétaire
     createdAt: '2023-02-20T10:30:00Z',
     rating: 4.6,
     isActive: true,
@@ -242,7 +273,8 @@ export const orders: Order[] = [
     deliveryFee: 1500,
     estimatedDeliveryTime: '2-4 heures',
     assignedDeliveryUser: '4',
-    processedBy: '2'
+    processedBy: '2',
+    marketplaceCommission: 16.50 // 5% de 329.98
   },
   {
     id: '2',
@@ -277,6 +309,7 @@ export const orders: Order[] = [
     deliveryFee: 2000,
     estimatedDeliveryTime: '4-6 heures',
     assignedDeliveryUser: '4',
-    processedBy: '3'
+    processedBy: '3',
+    marketplaceCommission: 1.50 // 5% de 29.98
   },
 ];

@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
       const user = await login(email, password);
       
       // Redirect based on user role and redirect parameter
-      if (user.role === 'seller' || user.role === 'admin' || user.role === 'super-admin' || user.role === 'manager' || user.role === 'delivery') {
+      if (user.role === 'admin' || user.role === 'super-admin' || user.role === 'manager' || user.role === 'delivery') {
         navigate('/dashboard');
       } else if (redirectTo === 'checkout') {
         navigate('/checkout');
@@ -119,11 +119,13 @@ const LoginPage: React.FC = () => {
             <br />
             <span className="text-green-600 font-medium">Super-Admin : admin@jeffel.com</span>
             <br />
+            <span className="text-blue-600 font-medium">Admin Marketplace : marketplace@jeffel.com</span>
+            <br />
             Client : jean@exemple.com
             <br />
-            Vendeur : marie@exemple.com
+            Admin Tenant : marie@exemple.com (Tech Paradise)
             <br />
-            Admin Tenant : pierre@exemple.com
+            Admin Tenant : pierre@exemple.com (Éco Produits)
             <br />
             Gestionnaire : fatou@exemple.com
             <br />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, User, Lock, Mail } from 'lucide-react';
+import { UserPlus, User, Lock, Mail, Store } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -13,7 +13,9 @@ const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'customer' | 'seller'>('customer');
+  const [accountType, setAccountType] = useState<'customer' | 'seller'>('customer');
+  const [businessName, setBusinessName] = useState('');
+  const [businessDescription, setBusinessDescription] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -21,7 +23,12 @@ const RegisterPage: React.FC = () => {
     e.preventDefault();
     
     if (!name || !email || !password || !confirmPassword) {
-      setError('Veuillez remplir tous les champs');
+      setError('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+    
+    if (accountType === 'seller' && (!businessName || !businessDescription)) {
+      setError('Veuillez remplir les informations de votre entreprise');
       return;
     }
     
@@ -34,10 +41,15 @@ const RegisterPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const user = await register(name, email, password, role);
+      // Pour les vendeurs, on crée un admin de tenant
+      const userRole = accountType === 'seller' ? 'admin' : 'customer';
+      const user = await register(name, email, password, userRole);
+      
+      // TODO: Si c'est un vendeur, créer aussi le tenant
+      // Dans une vraie application, cela se ferait côté serveur
       
       // Redirect based on user role
-      if (user.role === 'seller') {
+      if (user.role === 'admin') {
         navigate('/dashboard');
       } else {
         navigate('/');
@@ -129,31 +141,59 @@ const RegisterPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setRole('customer')}
+                onClick={() => setAccountType('customer')}
                 className={`p-4 border rounded-lg transition-colors text-center ${
-                  role === 'customer'
+                  accountType === 'customer'
                     ? 'bg-blue-50 border-blue-600 text-blue-600'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
+                <User className="w-6 h-6 mx-auto mb-2" />
                 <div className="font-medium">Client</div>
                 <div className="text-xs mt-1">Acheter des produits</div>
               </button>
               
               <button
                 type="button"
-                onClick={() => setRole('seller')}
+                onClick={() => setAccountType('seller')}
                 className={`p-4 border rounded-lg transition-colors text-center ${
-                  role === 'seller'
+                  accountType === 'seller'
                     ? 'bg-blue-50 border-blue-600 text-blue-600'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
+                <Store className="w-6 h-6 mx-auto mb-2" />
                 <div className="font-medium">Vendeur</div>
-                <div className="text-xs mt-1">Vendre des produits</div>
+                <div className="text-xs mt-1">Créer une boutique</div>
               </button>
             </div>
           </div>
+          
+          {accountType === 'seller' && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-900 mb-3">Informations de votre Entreprise</h3>
+              
+              <div className="mb-4">
+                <Input
+                  type="text"
+                  placeholder="Nom de votre Entreprise"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  fullWidth
+                />
+              </div>
+              
+              <div>
+                <textarea
+                  placeholder="Description de votre Entreprise"
+                  value={businessDescription}
+                  onChange={(e) => setBusinessDescription(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
           
           <Button 
             variant="primary" 
