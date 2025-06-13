@@ -11,19 +11,28 @@ import {
   Truck,
   MapPin,
   Building,
-  Store
+  Store,
+  Plus,
+  Eye,
+  BarChart3
 } from 'lucide-react';
-import { DashboardStats } from '../../types';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useAuth } from '../../contexts/AuthContext';
 import PermissionGate from '../../components/common/PermissionGate';
+import StatsCard from '../../components/dashboard/StatsCard';
+import Chart from '../../components/dashboard/Chart';
+import DataTable from '../../components/dashboard/DataTable';
+import ActivityFeed from '../../components/dashboard/ActivityFeed';
+import QuickActions from '../../components/dashboard/QuickActions';
+import MetricCard from '../../components/dashboard/MetricCard';
+import ProgressCard from '../../components/dashboard/ProgressCard';
 
 const DashboardHomePage: React.FC = () => {
   const { isDelivery, isManager, isAdmin, isSuperAdmin } = usePermissions();
   const { currentUser } = useAuth();
   
   // Mock data - in real app, this would come from API based on user role and permissions
-  const stats: DashboardStats = {
+  const stats = {
     totalOrders: isDelivery ? 45 : isSuperAdmin ? 3247 : 1247,
     totalRevenue: isDelivery ? 0 : isSuperAdmin ? 8750000 : 2850000, // en FCFA
     totalProducts: isDelivery ? 0 : isSuperAdmin ? 456 : 156,
@@ -36,48 +45,154 @@ const DashboardHomePage: React.FC = () => {
     totalCommissions: isSuperAdmin ? 437500 : undefined // 5% des ventes
   };
 
+  // Chart data
+  const salesData = [
+    { label: 'Jan', value: 65000 },
+    { label: 'Fév', value: 78000 },
+    { label: 'Mar', value: 82000 },
+    { label: 'Avr', value: 91000 },
+    { label: 'Mai', value: 87000 },
+    { label: 'Jun', value: 95000 },
+  ];
+
+  const categoryData = [
+    { label: 'Électronique', value: 45, color: '#3B82F6' },
+    { label: 'Mode', value: 30, color: '#10B981' },
+    { label: 'Maison', value: 15, color: '#F59E0B' },
+    { label: 'Autres', value: 10, color: '#EF4444' },
+  ];
+
+  const topProductsData = [
+    { label: 'Écouteurs Sans Fil', value: 156 },
+    { label: 'Montre Connectée', value: 134 },
+    { label: 'Smartphone', value: 98 },
+    { label: 'Ordinateur Portable', value: 87 },
+    { label: 'Tablette', value: 76 },
+  ];
+
+  // Recent orders data
   const recentOrders = [
-    { id: '1', customer: 'Aminata Diallo', total: 45000, status: 'pending', time: '2h', zone: 'Dakar Centre', tenant: 'Tech Paradise' },
-    { id: '2', customer: 'Moussa Sow', total: 78000, status: 'confirmed', time: '4h', zone: 'Pikine', tenant: 'Éco Produits' },
-    { id: '3', customer: 'Fatou Ndiaye', total: 32000, status: 'delivered', time: '1j', zone: 'Rufisque', tenant: 'Tech Paradise' },
-    { id: '4', customer: 'Ibrahima Fall', total: 95000, status: 'in_transit', time: '2j', zone: 'Thiès', tenant: 'Éco Produits' },
+    { 
+      id: 'CMD-001', 
+      customer: 'Aminata Diallo', 
+      total: '45 000 FCFA', 
+      status: 'En attente',
+      date: '2024-01-15',
+      tenant: 'Tech Paradise'
+    },
+    { 
+      id: 'CMD-002', 
+      customer: 'Moussa Sow', 
+      total: '78 000 FCFA', 
+      status: 'Confirmée',
+      date: '2024-01-15',
+      tenant: 'Éco Produits'
+    },
+    { 
+      id: 'CMD-003', 
+      customer: 'Fatou Ndiaye', 
+      total: '32 000 FCFA', 
+      status: 'Livrée',
+      date: '2024-01-14',
+      tenant: 'Tech Paradise'
+    },
   ];
 
-  const deliveryAssignments = [
-    { id: '1', order: 'CMD-001', customer: 'Aminata Diallo', zone: 'Dakar Centre', status: 'assigned', time: '1h' },
-    { id: '2', order: 'CMD-002', customer: 'Moussa Sow', zone: 'Pikine', status: 'picked_up', time: '3h' },
-    { id: '3', order: 'CMD-003', customer: 'Fatou Ndiaye', zone: 'Dakar Centre', status: 'in_transit', time: '5h' },
+  const orderColumns = [
+    { key: 'id', label: 'ID Commande', sortable: true },
+    { key: 'customer', label: 'Client', sortable: true },
+    { key: 'total', label: 'Total', sortable: true },
+    { 
+      key: 'status', 
+      label: 'Statut', 
+      render: (value: string) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+          value === 'Livrée' ? 'bg-green-100 text-green-800' :
+          value === 'Confirmée' ? 'bg-blue-100 text-blue-800' :
+          'bg-yellow-100 text-yellow-800'
+        }`}>
+          {value}
+        </span>
+      )
+    },
+    { key: 'date', label: 'Date', sortable: true },
+    { key: 'tenant', label: 'Vendeur' },
   ];
 
-  const topTenants = [
-    { id: '1', name: 'Tech Paradise', orders: 156, revenue: 1250000, growth: 15.2 },
-    { id: '2', name: 'Éco Produits', orders: 98, revenue: 890000, growth: 8.7 },
-    { id: '3', name: 'Mode Africaine', orders: 67, revenue: 567000, growth: 22.1 },
+  // Activities data
+  const activities = [
+    {
+      id: '1',
+      type: 'order' as const,
+      title: 'Nouvelle commande reçue',
+      description: 'Commande CMD-001 de Aminata Diallo pour 45 000 FCFA',
+      timestamp: '2024-01-15T10:30:00Z',
+      status: 'info' as const,
+      user: { name: 'Aminata Diallo' }
+    },
+    {
+      id: '2',
+      type: 'product' as const,
+      title: 'Produit ajouté',
+      description: 'Nouveau produit "Écouteurs Bluetooth" ajouté au catalogue',
+      timestamp: '2024-01-15T09:15:00Z',
+      status: 'success' as const,
+      user: { name: 'Marie Martin' }
+    },
+    {
+      id: '3',
+      type: 'delivery' as const,
+      title: 'Livraison terminée',
+      description: 'Commande CMD-002 livrée avec succès à Dakar Centre',
+      timestamp: '2024-01-15T08:45:00Z',
+      status: 'success' as const,
+      user: { name: 'Amadou Ba' }
+    },
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'confirmed': return 'text-blue-600 bg-blue-100';
-      case 'delivered': return 'text-green-600 bg-green-100';
-      case 'in_transit': return 'text-purple-600 bg-purple-100';
-      case 'assigned': return 'text-orange-600 bg-orange-100';
-      case 'picked_up': return 'text-indigo-600 bg-indigo-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
+  // Quick actions
+  const quickActions = [
+    {
+      id: '1',
+      title: isSuperAdmin ? 'Créer Tenant' : 'Ajouter Produit',
+      description: isSuperAdmin ? 'Créer un nouveau tenant vendeur' : 'Ajouter un nouveau produit',
+      icon: isSuperAdmin ? Building : Plus,
+      color: 'blue' as const,
+      onClick: () => console.log('Action 1'),
+    },
+    {
+      id: '2',
+      title: isDelivery ? 'Mes Livraisons' : 'Commandes en Attente',
+      description: isDelivery ? 'Voir mes livraisons assignées' : 'Gérer les commandes en attente',
+      icon: isDelivery ? Truck : Clock,
+      color: 'yellow' as const,
+      onClick: () => console.log('Action 2'),
+      badge: stats.pendingOrders > 0 ? { text: stats.pendingOrders.toString(), color: 'red' as const } : undefined,
+    },
+    {
+      id: '3',
+      title: 'Statistiques',
+      description: isSuperAdmin ? 'Analytics globales' : 'Voir les performances',
+      icon: BarChart3,
+      color: 'green' as const,
+      onClick: () => console.log('Action 3'),
+    },
+    {
+      id: '4',
+      title: isSuperAdmin ? 'Gérer Tenants' : isDelivery ? 'Mes Zones' : 'Clients',
+      description: isSuperAdmin ? 'Administrer les tenants' : isDelivery ? 'Zones de livraison' : 'Gérer les clients',
+      icon: isSuperAdmin ? Building : isDelivery ? MapPin : Users,
+      color: 'purple' as const,
+      onClick: () => console.log('Action 4'),
+    },
+  ];
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending': return 'En attente';
-      case 'confirmed': return 'Confirmée';
-      case 'delivered': return 'Livrée';
-      case 'in_transit': return 'En transit';
-      case 'assigned': return 'Assignée';
-      case 'picked_up': return 'Récupérée';
-      default: return status;
-    }
-  };
+  // Progress data
+  const progressItems = [
+    { label: 'Objectif Mensuel', value: 87000, target: 100000 },
+    { label: 'Commandes Traitées', value: 156, target: 200 },
+    { label: 'Satisfaction Client', value: 4.8, target: 5.0 },
+  ];
 
   const getRoleTitle = () => {
     if (isSuperAdmin) return 'Super Administrateur';
@@ -98,326 +213,175 @@ const DashboardHomePage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="space-y-8">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">{getRoleTitle()}</h1>
-        <p className="mt-1 text-sm text-gray-600">{getRoleDescription()}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{getRoleTitle()}</h1>
+        <p className="mt-2 text-gray-600">{getRoleDescription()}</p>
         {currentUser?.tenantId && currentUser.tenantId !== '0' && (
-          <p className="mt-1 text-xs text-blue-600">Tenant ID: {currentUser.tenantId}</p>
+          <p className="mt-1 text-sm text-blue-600">Tenant ID: {currentUser.tenantId}</p>
         )}
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Orders Stats */}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <PermissionGate permissions={['view_orders']} fallback={
           isDelivery ? (
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Truck className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Livraisons Assignées
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {stats.assignedDeliveries}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <StatsCard
+              title="Livraisons Assignées"
+              value={stats.assignedDeliveries || 0}
+              icon={Truck}
+              color="blue"
+              change={{ value: 8.2, type: 'increase' }}
+            />
           ) : null
         }>
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <ShoppingCart className="h-6 w-6 text-gray-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Commandes
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {stats.totalOrders.toLocaleString()}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            title="Total Commandes"
+            value={stats.totalOrders.toLocaleString()}
+            icon={ShoppingCart}
+            color="blue"
+            change={{ value: 12.5, type: 'increase' }}
+          />
         </PermissionGate>
 
-        {/* Revenue Stats */}
         <PermissionGate permissions={['view_financial_reports']} fallback={
           isDelivery ? (
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <CheckCircle className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Livraisons Complétées
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {stats.completedDeliveries}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <StatsCard
+              title="Livraisons Complétées"
+              value={stats.completedDeliveries || 0}
+              icon={CheckCircle}
+              color="green"
+              change={{ value: 15.3, type: 'increase' }}
+            />
           ) : null
         }>
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <DollarSign className="h-6 w-6 text-gray-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      {isSuperAdmin ? 'CA Total Marketplace' : 'Chiffre d\'Affaires'}
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {stats.totalRevenue.toLocaleString()} FCFA
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            title={isSuperAdmin ? 'CA Total Marketplace' : 'Chiffre d\'Affaires'}
+            value={`${stats.totalRevenue.toLocaleString()} FCFA`}
+            icon={DollarSign}
+            color="green"
+            change={{ value: 18.7, type: 'increase' }}
+          />
         </PermissionGate>
 
-        {/* Products/Tenants Stats */}
         <PermissionGate permissions={['view_products', 'view_all_tenants']}>
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  {isSuperAdmin ? (
-                    <Building className="h-6 w-6 text-gray-400" />
-                  ) : (
-                    <Package className="h-6 w-6 text-gray-400" />
-                  )}
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      {isSuperAdmin ? 'Tenants Actifs' : 'Produits Actifs'}
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {isSuperAdmin ? stats.totalTenants : stats.totalProducts}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            title={isSuperAdmin ? 'Tenants Actifs' : 'Produits Actifs'}
+            value={isSuperAdmin ? stats.totalTenants : stats.totalProducts}
+            icon={isSuperAdmin ? Building : Package}
+            color="purple"
+            change={{ value: 5.2, type: 'increase' }}
+          />
         </PermissionGate>
 
-        {/* Customers/Commissions Stats */}
         <PermissionGate permissions={['view_customers']}>
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  {isSuperAdmin ? (
-                    <Store className="h-6 w-6 text-gray-400" />
-                  ) : (
-                    <Users className="h-6 w-6 text-gray-400" />
-                  )}
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      {isSuperAdmin ? 'Commissions Marketplace' : 'Clients'}
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {isSuperAdmin 
-                        ? `${stats.totalCommissions?.toLocaleString()} FCFA`
-                        : stats.totalCustomers.toLocaleString()
-                      }
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            title={isSuperAdmin ? 'Commissions Marketplace' : 'Clients'}
+            value={isSuperAdmin 
+              ? `${stats.totalCommissions?.toLocaleString()} FCFA`
+              : stats.totalCustomers.toLocaleString()
+            }
+            icon={isSuperAdmin ? Store : Users}
+            color="yellow"
+            change={{ value: 7.8, type: 'increase' }}
+          />
         </PermissionGate>
       </div>
 
-      {/* Quick Actions & Recent Data */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Quick Actions */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Actions Rapides
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <PermissionGate permissions={['create_product', 'create_tenant']}>
-                <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  {isSuperAdmin ? (
-                    <>
-                      <Building className="h-8 w-8 text-blue-600 mb-2" />
-                      <span className="text-sm font-medium text-gray-900">Créer Tenant</span>
-                    </>
-                  ) : (
-                    <>
-                      <Package className="h-8 w-8 text-blue-600 mb-2" />
-                      <span className="text-sm font-medium text-gray-900">Ajouter Produit</span>
-                    </>
-                  )}
-                </button>
-              </PermissionGate>
-              
-              <PermissionGate permissions={['view_orders']}>
-                <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Clock className="h-8 w-8 text-yellow-600 mb-2" />
-                  <span className="text-sm font-medium text-gray-900">
-                    {isDelivery ? 'Livraisons en Cours' : 'Commandes en Attente'}
-                  </span>
-                  {stats.pendingOrders > 0 && (
-                    <span className="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                      {stats.pendingOrders}
-                    </span>
-                  )}
-                </button>
-              </PermissionGate>
-              
-              <PermissionGate permissions={['view_analytics']}>
-                <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <TrendingUp className="h-8 w-8 text-green-600 mb-2" />
-                  <span className="text-sm font-medium text-gray-900">
-                    {isSuperAdmin ? 'Analytics Globales' : 'Statistiques'}
-                  </span>
-                </button>
-              </PermissionGate>
-              
-              <PermissionGate permissions={['view_customers', 'view_all_tenants']} fallback={
-                isDelivery ? (
-                  <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <MapPin className="h-8 w-8 text-purple-600 mb-2" />
-                    <span className="text-sm font-medium text-gray-900">Mes Zones</span>
-                  </button>
-                ) : null
-              }>
-                <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  {isSuperAdmin ? (
-                    <>
-                      <Building className="h-8 w-8 text-purple-600 mb-2" />
-                      <span className="text-sm font-medium text-gray-900">Gérer Tenants</span>
-                    </>
-                  ) : (
-                    <>
-                      <Users className="h-8 w-8 text-purple-600 mb-2" />
-                      <span className="text-sm font-medium text-gray-900">Clients</span>
-                    </>
-                  )}
-                </button>
-              </PermissionGate>
-            </div>
-          </div>
+      {/* Charts Section */}
+      <PermissionGate permissions={['view_analytics']}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Chart
+            title="Évolution des Ventes"
+            data={salesData}
+            type="line"
+            height={300}
+          />
+          
+          <Chart
+            title="Répartition par Catégorie"
+            data={categoryData}
+            type="doughnut"
+            height={300}
+          />
         </div>
+      </PermissionGate>
 
-        {/* Recent Orders, Deliveries, or Top Tenants */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              {isDelivery 
-                ? 'Livraisons Assignées' 
-                : isSuperAdmin 
-                  ? 'Top Tenants' 
-                  : 'Commandes Récentes'
-              }
-            </h3>
-            <div className="space-y-4">
-              {isSuperAdmin ? (
-                // Top Tenants for Super Admin
-                topTenants.map((tenant) => (
-                  <div key={tenant.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{tenant.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {tenant.orders} commandes • {tenant.revenue.toLocaleString()} FCFA
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        +{tenant.growth}%
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                // Orders or Deliveries
-                (isDelivery ? deliveryAssignments : recentOrders).map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {isDelivery ? `${item.order} - ${item.customer}` : item.customer}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {isDelivery 
-                          ? `Zone: ${item.zone}` 
-                          : `${item.total.toLocaleString()} FCFA • ${item.tenant}`
-                        }
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
-                        {getStatusText(item.status)}
-                      </span>
-                      <span className="text-xs text-gray-500">{item.time}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+      {/* Metrics and Progress */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <PermissionGate permissions={['view_analytics']}>
+            <Chart
+              title="Top Produits"
+              data={topProductsData}
+              type="bar"
+              height={300}
+              showLegend={false}
+            />
+          </PermissionGate>
         </div>
+        
+        <PermissionGate permissions={['view_analytics']}>
+          <ProgressCard
+            title="Objectifs du Mois"
+            icon={TrendingUp}
+            items={progressItems}
+          />
+        </PermissionGate>
       </div>
 
-      {/* Growth Indicator */}
+      {/* Quick Actions and Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <QuickActions actions={quickActions} />
+        <ActivityFeed activities={activities} />
+      </div>
+
+      {/* Recent Orders Table */}
+      <PermissionGate permissions={['view_orders']}>
+        <DataTable
+          title="Commandes Récentes"
+          columns={orderColumns}
+          data={recentOrders}
+          actions={{
+            view: (row) => console.log('View', row),
+            edit: (row) => console.log('Edit', row),
+          }}
+        />
+      </PermissionGate>
+
+      {/* Performance Metrics */}
       <PermissionGate permissions={['view_analytics']}>
-        <div className="mt-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium">
-                {isDelivery 
-                  ? 'Performance de Livraison' 
-                  : isSuperAdmin 
-                    ? 'Croissance Marketplace' 
-                    : 'Croissance Mensuelle'
-                }
-              </h3>
-              <p className="text-blue-100">
-                {isDelivery 
-                  ? 'Votre efficacité ce mois-ci' 
-                  : isSuperAdmin 
-                    ? 'Performance globale de JefJel' 
-                    : 'Votre performance ce mois-ci'
-                }
-              </p>
-            </div>
-            <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 mr-2" />
-              <span className="text-2xl font-bold">
-                {isDelivery ? '95%' : `+${stats.monthlyGrowth}%`}
-              </span>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <MetricCard
+            title="Taux de Conversion"
+            value="3.2"
+            format="percentage"
+            trend="up"
+            trendValue={0.5}
+            subtitle="vs mois dernier"
+            color="green"
+          />
+          
+          <MetricCard
+            title="Panier Moyen"
+            value={67500}
+            format="currency"
+            trend="up"
+            trendValue={12.3}
+            subtitle="vs mois dernier"
+            color="blue"
+          />
+          
+          <MetricCard
+            title="Satisfaction Client"
+            value="4.8"
+            previousValue="4.6"
+            trend="up"
+            trendValue={4.3}
+            subtitle="sur 5 étoiles"
+            color="yellow"
+          />
         </div>
       </PermissionGate>
     </div>
