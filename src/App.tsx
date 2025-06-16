@@ -22,6 +22,11 @@ import RegisterPage from './pages/auth/RegisterPage';
 
 // Dashboard Pages
 import DashboardHomePage from './pages/dashboard/DashboardHomePage';
+import OrdersPage from './pages/dashboard/OrdersPage';
+import CustomersPage from './pages/dashboard/CustomersPage';
+import DeliveriesPage from './pages/dashboard/DeliveriesPage';
+import ProductsPage from './pages/dashboard/ProductsPage';
+import AnalyticsPage from './pages/dashboard/AnalyticsPage';
 
 function App() {
   return (
@@ -89,46 +94,31 @@ function App() {
               
               <Route path="products" element={
                 <ProtectedRoute permissions={['view_products']}>
-                  <div className="text-center py-16">
-                    <h1 className="text-2xl font-bold">Gestion des Produits</h1>
-                    <p className="mt-4 text-gray-600">Gérez votre catalogue de produits.</p>
-                  </div>
+                  <ProductsPage />
                 </ProtectedRoute>
               } />
               
               <Route path="orders" element={
                 <ProtectedRoute permissions={['view_orders']}>
-                  <div className="text-center py-16">
-                    <h1 className="text-2xl font-bold">Gestion des Commandes</h1>
-                    <p className="mt-4 text-gray-600">Suivez et gérez vos commandes.</p>
-                  </div>
+                  <OrdersPage />
                 </ProtectedRoute>
               } />
               
               <Route path="customers" element={
                 <ProtectedRoute permissions={['view_customers']}>
-                  <div className="text-center py-16">
-                    <h1 className="text-2xl font-bold">Gestion des Clients</h1>
-                    <p className="mt-4 text-gray-600">Gérez votre base de clients.</p>
-                  </div>
+                  <CustomersPage />
                 </ProtectedRoute>
               } />
               
               <Route path="deliveries" element={
                 <ProtectedRoute permissions={['view_deliveries']}>
-                  <div className="text-center py-16">
-                    <h1 className="text-2xl font-bold">Gestion des Livraisons</h1>
-                    <p className="mt-4 text-gray-600">Suivez les livraisons par zone.</p>
-                  </div>
+                  <DeliveriesPage />
                 </ProtectedRoute>
               } />
               
               <Route path="analytics" element={
                 <ProtectedRoute permissions={['view_analytics']}>
-                  <div className="text-center py-16">
-                    <h1 className="text-2xl font-bold">Statistiques</h1>
-                    <p className="mt-4 text-gray-600">Analysez vos performances.</p>
-                  </div>
+                  <AnalyticsPage />
                 </ProtectedRoute>
               } />
               
