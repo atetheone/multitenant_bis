@@ -41,12 +41,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Find user with matching email (in a real app, we would verify password too)
-    const user = users.find(u => u.email === email);
+    // Normalize email to lowercase for case-insensitive comparison
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // Find user with matching email (case-insensitive)
+    const user = users.find(u => u.email.toLowerCase() === normalizedEmail);
     
     if (!user) {
-      throw new Error('Invalid credentials');
+      console.error('Login failed: User not found for email:', email);
+      console.log('Available users:', users.map(u => u.email));
+      throw new Error('Utilisateur non trouvé. Veuillez vérifier votre adresse email.');
     }
+    
+    // In a real app, we would verify the password here
+    // For demo purposes, we accept any password for existing users
     
     // Set current user and store in localStorage
     setCurrentUser(user);
@@ -69,18 +77,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Check if email is already in use
-    if (users.some(u => u.email === email)) {
-      throw new Error('Email already in use');
+    // Normalize email for case-insensitive comparison
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // Check if email is already in use (case-insensitive)
+    if (users.some(u => u.email.toLowerCase() === normalizedEmail)) {
+      throw new Error('Cette adresse email est déjà utilisée');
     }
     
     // Create new user (in a real app, we would save this to a database)
     const newUser: User = {
       id: String(users.length + 1),
       name,
-      email,
+      email: normalizedEmail,
       role,
+      isActive: true,
+      createdAt: new Date().toISOString(),
     };
+    
+    // Add to users array for this session
+    users.push(newUser);
     
     // Set current user and store in localStorage
     setCurrentUser(newUser);

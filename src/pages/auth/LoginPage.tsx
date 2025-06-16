@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogIn, User, Lock } from 'lucide-react';
+import { LogIn, User, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -39,12 +39,19 @@ const LoginPage: React.FC = () => {
       } else {
         navigate('/');
       }
-    } catch (err) {
-      setError('Identifiants invalides. Veuillez réessayer.');
-      console.error(err);
+    } catch (err: any) {
+      const errorMessage = err.message || 'Une erreur est survenue lors de la connexion';
+      setError(errorMessage);
+      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDemoLogin = (demoEmail: string) => {
+    setEmail(demoEmail);
+    setPassword('demo123'); // Set a demo password
+    setError('');
   };
   
   return (
@@ -59,8 +66,9 @@ const LoginPage: React.FC = () => {
       
       <div className="p-6">
         {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-md mb-6">
-            {error}
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-6 flex items-start">
+            <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+            <span>{error}</span>
           </div>
         )}
         
@@ -113,23 +121,84 @@ const LoginPage: React.FC = () => {
           </p>
         </div>
         
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="mt-6 border-t pt-6">
+          <p className="text-sm font-medium text-gray-700 mb-3">
             <strong>Comptes de démonstration :</strong>
-            <br />
-            <span className="text-green-600 font-medium">Super-Admin : admin@jeffel.com</span>
-            <br />
-            <span className="text-blue-600 font-medium">Admin Marketplace : marketplace@jeffel.com</span>
-            <br />
-            Client : jean@exemple.com
-            <br />
-            Admin Tenant : marie@exemple.com (Tech Paradise)
-            <br />
-            Admin Tenant : pierre@exemple.com (Éco Produits)
-            <br />
-            Gestionnaire : fatou@exemple.com
-            <br />
-            Livreur : amadou@exemple.com
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('admin@jeffel.com')}
+              className="text-left p-2 rounded bg-green-50 hover:bg-green-100 border border-green-200 transition-colors"
+            >
+              <span className="text-green-700 font-medium">Super-Admin</span>
+              <br />
+              <span className="text-green-600">admin@jeffel.com</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('marketplace@jeffel.com')}
+              className="text-left p-2 rounded bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors"
+            >
+              <span className="text-blue-700 font-medium">Admin Marketplace</span>
+              <br />
+              <span className="text-blue-600">marketplace@jeffel.com</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('jean@exemple.com')}
+              className="text-left p-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors"
+            >
+              <span className="text-gray-700 font-medium">Client</span>
+              <br />
+              <span className="text-gray-600">jean@exemple.com</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('marie@exemple.com')}
+              className="text-left p-2 rounded bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors"
+            >
+              <span className="text-purple-700 font-medium">Admin Tech Paradise</span>
+              <br />
+              <span className="text-purple-600">marie@exemple.com</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('pierre@exemple.com')}
+              className="text-left p-2 rounded bg-orange-50 hover:bg-orange-100 border border-orange-200 transition-colors"
+            >
+              <span className="text-orange-700 font-medium">Admin Éco Produits</span>
+              <br />
+              <span className="text-orange-600">pierre@exemple.com</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('fatou@exemple.com')}
+              className="text-left p-2 rounded bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
+            >
+              <span className="text-indigo-700 font-medium">Gestionnaire</span>
+              <br />
+              <span className="text-indigo-600">fatou@exemple.com</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => handleDemoLogin('amadou@exemple.com')}
+              className="text-left p-2 rounded bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 transition-colors"
+            >
+              <span className="text-yellow-700 font-medium">Livreur</span>
+              <br />
+              <span className="text-yellow-600">amadou@exemple.com</span>
+            </button>
+          </div>
+          
+          <p className="text-xs text-gray-500 mt-3">
+            Cliquez sur un compte pour remplir automatiquement les champs de connexion.
           </p>
         </div>
       </div>
