@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
-import { users } from '../data/mockData';
+import { apiService } from '../services/apiService';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -38,27 +38,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const response = await apiService.login({ email, password });
     
-    // Normalize email to lowercase for case-insensitive comparison
-    const normalizedEmail = email.toLowerCase().trim();
-    
-    // Find user with matching email (case-insensitive)
-    const user = users.find(u => u.email.toLowerCase() === normalizedEmail);
-    
-    if (!user) {
-      console.error('Login failed: User not found for email:', email);
-      console.log('Available users:', users.map(u => u.email));
-      throw new Error('Utilisateur non trouvé. Veuillez vérifier votre adresse email.');
+    if (!response.success) {
+      throw new Error(response.message || 'Erreur de connexion');
     }
     
-    // In a real app, we would verify the password here
-    // For demo purposes, we accept any password for existing users
+    const user = response.data.user;
     
     // Set current user and store in localStorage
     setCurrentUser(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('authToken', response.data.token);
     
     return user;
   };
@@ -66,6 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('authToken');
   };
 
   const register = async (
