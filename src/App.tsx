@@ -26,6 +26,7 @@ import OrdersPage from './pages/dashboard/OrdersPage';
 import CustomersPage from './pages/dashboard/CustomersPage';
 import DeliveriesPage from './pages/dashboard/DeliveriesPage';
 import ProductsPage from './pages/dashboard/ProductsPage';
+import RolesPage from './pages/dashboard/RolesPage';
 import AnalyticsPage from './pages/dashboard/AnalyticsPage';
 
 function App() {
@@ -119,6 +120,12 @@ function App() {
               <Route path="analytics" element={
                 <ProtectedRoute permissions={['view_analytics']}>
                   <AnalyticsPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="roles" element={
+                <ProtectedRoute permissions={['manage_roles']}>
+                  <RolesPage />
                 </ProtectedRoute>
               } />
               

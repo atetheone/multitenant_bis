@@ -65,6 +65,12 @@ const DashboardLayout: React.FC = () => {
       permissions: ['view_deliveries']
     },
     { 
+      name: 'Rôles', 
+      href: '/dashboard/roles', 
+      icon: Shield,
+      permissions: ['manage_roles']
+    },
+    { 
       name: 'Statistiques', 
       href: '/dashboard/analytics', 
       icon: BarChart3,

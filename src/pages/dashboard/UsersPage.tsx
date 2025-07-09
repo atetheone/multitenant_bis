@@ -21,6 +21,8 @@ import {
 import { usePermissions } from '../../hooks/usePermissions';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../hooks/useApi';
 import DataTable from '../../components/dashboard/DataTable';
+import UserCreateModal from '../../components/dashboard/UserCreateModal';
+import UserEditModal from '../../components/dashboard/UserEditModal';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 
@@ -37,6 +39,7 @@ const UsersPage: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -172,7 +175,7 @@ const UsersPage: React.FC = () => {
   };
 
   const handleEditUser = (user: any) => {
-    setSelectedUser(user);
+    setEditingUser(user);
     setShowEditModal(true);
   };
 
@@ -182,6 +185,31 @@ const UsersPage: React.FC = () => {
       if (result) {
         refetch();
       }
+    }
+  };
+
+  const handleCreateUser = async (userData: any) => {
+    try {
+      const result = await createUserMutation.mutate(userData);
+      if (result) {
+        setShowCreateModal(false);
+        refetch();
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
+  };
+
+  const handleUpdateUser = async (userData: any) => {
+    try {
+      const result = await updateUserMutation.mutate({ id: userData.id, userData });
+      if (result) {
+        setShowEditModal(false);
+        setEditingUser(null);
+        refetch();
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
     }
   };
 
@@ -493,6 +521,25 @@ const UsersPage: React.FC = () => {
         <UserDetailModal 
           user={selectedUser} 
           onClose={() => setSelectedUser(null)} 
+        />
+      )}
+
+      {/* Modal de création */}
+      {showCreateModal && (
+        <UserCreateModal
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreateUser}
+          loading={createUserMutation.loading}
+        />
+      )}
+
+      {/* Modal d'édition */}
+      {showEditModal && editingUser && (
+        <UserEditModal
+          user={editingUser}
+          onClose={() => { setShowEditModal(false); setEditingUser(null); }}
+          onSubmit={handleUpdateUser}
+          loading={updateUserMutation.loading}
         />
       )}
     </div>

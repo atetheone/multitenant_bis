@@ -11,6 +11,7 @@ export const systemRoles: Role[] = [
       'edit_tenant',
       'delete_tenant',
       'view_all_tenants',
+      'manage_roles',
       'create_user',
       'edit_user',
       'delete_user',
@@ -66,7 +67,8 @@ export const systemRoles: Role[] = [
       'view_analytics',
       'view_financial_reports',
       'export_data',
-      'manage_settings'
+      'manage_settings',
+      'manage_roles'
     ]
   },
   {
