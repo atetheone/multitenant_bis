@@ -137,24 +137,24 @@ const LoginPage: React.FC = () => {
         </div>
         
         <div className="mt-6 border-t pt-6">
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-sm font-medium text-red-800 mb-3">
-              🚨 Configuration requise pour se connecter
+          <div className="bg-red-50 border-2 border-red-300 rounded-md p-4">
+            <p className="text-lg font-bold text-red-800 mb-3 flex items-center">
+              🚨 SETUP REQUIS - Lisez COMPLETE_SETUP_GUIDE.md
             </p>
-            <div className="text-xs text-red-700 space-y-2">
-              <div className="font-medium">Étapes obligatoires :</div>
-              <div className="pl-4 space-y-1">
-                <p>1. Aller dans Supabase Dashboard → Authentication → Users</p>
-                <p>2. Cliquer "Add User" et créer :</p>
-                <p className="pl-4">• Email: admin@jeffel.com</p>
-                <p className="pl-4">• Password: password123</p>
-                <p className="pl-4">• ✅ Email Confirm: coché</p>
-                <p>3. Exécuter le script supabase/fix_auth_setup.sql</p>
+            <div className="text-sm text-red-700 space-y-2">
+              <p className="font-bold">ÉTAPES OBLIGATOIRES :</p>
+              <div className="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                <p className="font-bold">1. Créer utilisateur dans Supabase Auth Dashboard</p>
+                <p>Email: admin@jeffel.com | Password: password123</p>
+                <p className="text-red-600">✅ Email Confirm DOIT être coché!</p>
               </div>
-              <div className="mt-2 pt-2 border-t border-red-300">
-                <p className="font-medium">⚠️ Sans ces étapes, la connexion échouera</p>
+              <div className="bg-red-100 p-3 rounded border-l-4 border-red-500">
+                <p className="font-bold">2. Exécuter supabase/fix_auth_setup.sql</p>
+                <p>Dans Supabase Dashboard → SQL Editor</p>
               </div>
-            </div>
+              <p className="font-bold text-red-600 text-center mt-3">
+                ⚠️ SANS CES ÉTAPES, LA CONNEXION ÉCHOUERA TOUJOURS!
+              </p>
           </div>
         </div>
       </div>
