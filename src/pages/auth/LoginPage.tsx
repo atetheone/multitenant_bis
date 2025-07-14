@@ -50,6 +50,8 @@ const LoginPage: React.FC = () => {
       
       if (err.message?.includes('Invalid login credentials')) {
         errorMessage = 'Email ou mot de passe incorrect. Assurez-vous d\'avoir exécuté le script de seed dans Supabase.';
+      } else if (err.message?.includes('User not found')) {
+        errorMessage = 'Utilisateur non trouvé. Veuillez créer l\'utilisateur admin@jeffel.com dans Supabase Auth Dashboard.';
       } else if (err.message?.includes('fetch')) {
         errorMessage = 'Impossible de se connecter à Supabase. Vérifiez votre configuration.';
       } else if (err.message) {
@@ -135,14 +137,23 @@ const LoginPage: React.FC = () => {
         </div>
         
         <div className="mt-6 border-t pt-6">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-            <p className="text-sm font-medium text-yellow-800 mb-2">
-              ⚠️ Configuration requise
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <p className="text-sm font-medium text-red-800 mb-3">
+              🚨 Configuration requise pour se connecter
             </p>
-            <div className="text-xs text-yellow-700 space-y-1">
-              <p>1. Exécutez le script SQL dans Supabase</p>
-              <p>2. Créez l'utilisateur admin@jeffel.com dans Auth</p>
-              <p>3. Mot de passe: password123</p>
+            <div className="text-xs text-red-700 space-y-2">
+              <div className="font-medium">Étapes obligatoires :</div>
+              <div className="pl-4 space-y-1">
+                <p>1. Aller dans Supabase Dashboard → Authentication → Users</p>
+                <p>2. Cliquer "Add User" et créer :</p>
+                <p className="pl-4">• Email: admin@jeffel.com</p>
+                <p className="pl-4">• Password: password123</p>
+                <p className="pl-4">• ✅ Email Confirm: coché</p>
+                <p>3. Exécuter le script supabase/fix_auth_setup.sql</p>
+              </div>
+              <div className="mt-2 pt-2 border-t border-red-300">
+                <p className="font-medium">⚠️ Sans ces étapes, la connexion échouera</p>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,7 @@
 ## Database Setup Instructions
 
+### ⚠️ IMPORTANT: You MUST complete ALL steps below for login to work!
+
 ### Step 1: Configure Supabase Connection
 
 1. **Check Environment Variables**
@@ -12,7 +14,7 @@
 
 ### Step 2: Create Authentication User
 
-**IMPORTANT**: You must create the user in Supabase Auth first!
+**🔴 CRITICAL STEP**: You must create the user in Supabase Auth first!
 
 1. **Go to Supabase Dashboard → Authentication → Users**
 2. **Click "Add User"**
@@ -21,6 +23,7 @@
    - Password: `password123`
    - Email Confirm: ✅ (checked)
 4. **Click "Create User"**
+5. **Verify the user appears in the users list with a green checkmark**
 
 ### Step 3: Run the Database Setup Script
 
