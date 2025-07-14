@@ -126,7 +126,6 @@ const LoginPage: React.FC = () => {
             <p><strong>Client:</strong> aminata@example.com / password123</p>
             <p>Ou créez un nouveau compte</p>
           </div>
-          </p>
         </div>
       </div>
     </div>
