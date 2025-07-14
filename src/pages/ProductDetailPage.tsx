@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { products, tenants } from '../data/mockData';
 import { ShoppingCart, Store, Star, Minus, Plus, ArrowLeft, Heart } from 'lucide-react';
+import { useProduct } from '../hooks/useSupabase';
 import { useCart } from '../contexts/CartContext';
 import Button from '../components/common/Button';
 
@@ -13,9 +13,28 @@ const ProductDetailPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   
-  const product = products.find(p => p.id === productId);
+  const { data: product, loading, error } = useProduct(productId ? parseInt(productId) : 0);
   
-  if (!product) {
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-32 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="aspect-square bg-gray-200 rounded-lg"></div>
+            <div className="space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Produit Non Trouvé</h2>
@@ -32,21 +51,41 @@ const ProductDetailPage: React.FC = () => {
     );
   }
   
-  const tenant = tenants.find(t => t.id === product.tenantId);
-  
   const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity >= 1 && newQuantity <= product.stock) {
+    const maxQuantity = product.inventory?.[0]?.quantity || 0;
+    if (newQuantity >= 1 && newQuantity <= maxQuantity) {
       setQuantity(newQuantity);
     }
   };
   
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    // Transform Supabase product to cart format
+    const cartProduct = {
+      id: product.id.toString(),
+      name: product.name,
+      description: product.description || '',
+      price: product.price,
+      images: product.product_images?.map((img: any) => img.url) || [],
+      category: 'Général',
+      tenantId: product.tenant_id?.toString() || '',
+      tenantName: product.tenants?.name || 'Vendeur',
+      stock: product.inventory?.[0]?.quantity || 0,
+      rating: product.average_rating || 0,
+      createdAt: product.created_at,
+      isActive: product.is_active,
+      createdBy: ''
+    };
+    
+    addToCart(cartProduct, quantity);
   };
   
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
+
+  const images = product.product_images?.sort((a: any, b: any) => a.display_order - b.display_order) || [];
+  const coverImage = images.find((img: any) => img.is_cover) || images[0];
+  const stock = product.inventory?.[0]?.quantity || 0;
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -61,15 +100,15 @@ const ProductDetailPage: React.FC = () => {
           <div className="md:w-1/2 p-6">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
               <img 
-                src={product.images[activeImage] || product.images[0]} 
+                src={images[activeImage]?.url || coverImage?.url || 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600'} 
                 alt={product.name} 
                 className="w-full h-full object-cover object-center"
               />
             </div>
             
-            {product.images.length > 1 && (
+            {images.length > 1 && (
               <div className="flex space-x-4">
-                {product.images.map((image, index) => (
+                {images.map((image: any, index: number) => (
                   <button
                     key={index}
                     onClick={() => setActiveImage(index)}
@@ -78,8 +117,8 @@ const ProductDetailPage: React.FC = () => {
                     }`}
                   >
                     <img 
-                      src={image} 
-                      alt={`${product.name} miniature ${index + 1}`} 
+                      src={image.url} 
+                      alt={image.alt_text || `${product.name} image ${index + 1}`} 
                       className="w-full h-full object-cover object-center"
                     />
                   </button>
@@ -104,12 +143,12 @@ const ProductDetailPage: React.FC = () => {
               <div className="flex items-center mb-2">
                 <div className="flex items-center mr-4">
                   <Star className="w-5 h-5 text-yellow-400" fill="currentColor" />
-                  <span className="ml-1 text-gray-700">{product.rating}</span>
+                  <span className="ml-1 text-gray-700">{product.average_rating?.toFixed(1) || '0.0'}</span>
                 </div>
                 <span className="text-gray-500">|</span>
                 <span className="ml-4 text-gray-500">
-                  {product.stock > 0 ? (
-                    <span className="text-green-600">En Stock</span>
+                  {stock > 0 ? (
+                    <span className="text-green-600">En Stock ({stock})</span>
                   ) : (
                     <span className="text-red-600">Rupture de Stock</span>
                   )}
@@ -117,29 +156,27 @@ const ProductDetailPage: React.FC = () => {
               </div>
               
               <div className="text-2xl font-bold text-blue-600 mb-4">
-                {product.price.toFixed(2)}€
+                {product.price.toLocaleString()} FCFA
               </div>
               
               <p className="text-gray-700 mb-6">{product.description}</p>
             </div>
             
             {/* Seller Info */}
-            {tenant && (
+            {product.tenants && (
               <Link 
-                to={`/sellers/${tenant.id}`}
+                to={`/sellers/${product.tenants.id}`}
                 className="flex items-center p-4 border border-gray-200 rounded-lg mb-6 hover:bg-gray-50 transition-colors"
               >
-                <img 
-                  src={tenant.logo} 
-                  alt={tenant.name} 
-                  className="w-12 h-12 rounded-full object-cover mr-4"
-                />
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                  <Store className="w-6 h-6 text-blue-600" />
+                </div>
                 <div>
                   <div className="flex items-center">
-                    <h3 className="font-medium text-gray-900 mr-2">{tenant.name}</h3>
+                    <h3 className="font-medium text-gray-900 mr-2">{product.tenants.name}</h3>
                     <div className="flex items-center text-sm text-gray-500">
                       <Star className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" />
-                      {tenant.rating}
+                      {product.tenants.rating?.toFixed(1) || '0.0'}
                     </div>
                   </div>
                   <p className="text-sm text-gray-500">Voir la Boutique</p>
@@ -164,7 +201,7 @@ const ProductDetailPage: React.FC = () => {
                 </span>
                 <button 
                   onClick={() => handleQuantityChange(quantity + 1)}
-                  disabled={quantity >= product.stock}
+                  disabled={quantity >= stock}
                   className="px-3 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
@@ -180,7 +217,7 @@ const ProductDetailPage: React.FC = () => {
                 fullWidth
                 onClick={handleAddToCart}
                 className="flex items-center justify-center"
-                disabled={product.stock <= 0}
+                disabled={stock <= 0}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 Ajouter au Panier
@@ -193,7 +230,7 @@ const ProductDetailPage: React.FC = () => {
                   handleAddToCart();
                   window.location.href = '/cart';
                 }}
-                disabled={product.stock <= 0}
+                disabled={stock <= 0}
               >
                 Acheter Maintenant
               </Button>

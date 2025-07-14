@@ -6,7 +6,7 @@ import { useCart } from '../../contexts/CartContext';
 import Button from './Button';
 
 const Header: React.FC = () => {
-  const { currentUser, logout } = useAuth();
+  const { userProfile, signOut } = useAuth();
   const { totalItems } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,9 +28,13 @@ const Header: React.FC = () => {
     setIsMenuOpen(false);
   }, [location]);
   
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
   
   const navLinks = [
@@ -39,18 +43,44 @@ const Header: React.FC = () => {
     { title: 'Vendeurs', path: '/sellers' },
   ];
   
-  const authLinks = currentUser
+  const authLinks = userProfile
     ? [
         { 
-          title: currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery'
-            ? 'Tableau de Bord' 
-            : 'Mes Commandes', 
-          path: currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery'
-            ? '/dashboard' 
-            : '/customer/orders' 
+          title: getUserDashboardTitle(),
+          path: getUserDashboardPath()
         },
       ]
     : [];
+
+  function getUserDashboardTitle() {
+    if (!userProfile?.roles?.length) return 'Mon Compte';
+    
+    const role = userProfile.roles[0]?.role?.name;
+    switch (role) {
+      case 'super-admin':
+      case 'admin':
+      case 'manager':
+      case 'delivery':
+        return 'Tableau de Bord';
+      default:
+        return 'Mes Commandes';
+    }
+  }
+
+  function getUserDashboardPath() {
+    if (!userProfile?.roles?.length) return '/customer/orders';
+    
+    const role = userProfile.roles[0]?.role?.name;
+    switch (role) {
+      case 'super-admin':
+      case 'admin':
+      case 'manager':
+      case 'delivery':
+        return '/dashboard';
+      default:
+        return '/customer/orders';
+    }
+  }
   
   const headerClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
     isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
@@ -92,13 +122,13 @@ const Header: React.FC = () => {
               )}
             </Link>
             
-            {currentUser ? (
+            {userProfile ? (
               <div className="relative group">
                 <button className="flex items-center space-x-2 focus:outline-none">
-                  {currentUser.avatar ? (
+                  {userProfile.profile?.avatar_url ? (
                     <img 
-                      src={currentUser.avatar} 
-                      alt={currentUser.name} 
+                      src={userProfile.profile.avatar_url} 
+                      alt={`${userProfile.first_name} ${userProfile.last_name}`} 
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
@@ -110,11 +140,13 @@ const Header: React.FC = () => {
                 
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{currentUser.name}</p>
-                    <p className="text-xs text-gray-500">{currentUser.email}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {userProfile.first_name} {userProfile.last_name}
+                    </p>
+                    <p className="text-xs text-gray-500">{userProfile.email}</p>
                   </div>
                   
-                  {(currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery') && (
+                  {userProfile.roles?.some(ur => ['admin', 'super-admin', 'manager', 'delivery'].includes(ur.role?.name)) && (
                     <Link
                       to="/dashboard"
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -197,14 +229,14 @@ const Header: React.FC = () => {
                 </Link>
               ))}
               
-              {currentUser ? (
+              {userProfile ? (
                 <>
                   <div className="px-3 py-2 border-t border-gray-100 mt-2">
                     <div className="flex items-center space-x-3">
-                      {currentUser.avatar ? (
+                      {userProfile.profile?.avatar_url ? (
                         <img 
-                          src={currentUser.avatar} 
-                          alt={currentUser.name} 
+                          src={userProfile.profile.avatar_url} 
+                          alt={`${userProfile.first_name} ${userProfile.last_name}`} 
                           className="w-8 h-8 rounded-full object-cover"
                         />
                       ) : (
@@ -213,13 +245,15 @@ const Header: React.FC = () => {
                         </div>
                       )}
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{currentUser.name}</p>
-                        <p className="text-xs text-gray-500">{currentUser.email}</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {userProfile.first_name} {userProfile.last_name}
+                        </p>
+                        <p className="text-xs text-gray-500">{userProfile.email}</p>
                       </div>
                     </div>
                   </div>
                   
-                  {(currentUser.role === 'admin' || currentUser.role === 'super-admin' || currentUser.role === 'manager' || currentUser.role === 'delivery') && (
+                  {userProfile.roles?.some(ur => ['admin', 'super-admin', 'manager', 'delivery'].includes(ur.role?.name)) && (
                     <Link
                       to="/dashboard"
                       className="flex items-center w-full px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"

@@ -6,7 +6,7 @@ import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 
 const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -29,13 +29,13 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const user = await login(email, password);
+      await signIn(email, password);
       
-      // Redirect based on user role and redirect parameter
-      if (user.role === 'admin' || user.role === 'super-admin' || user.role === 'manager' || user.role === 'delivery') {
-        navigate('/dashboard');
-      } else if (redirectTo === 'checkout') {
+      // Redirect based on redirect parameter or to home
+      if (redirectTo === 'checkout') {
         navigate('/checkout');
+      } else if (redirectTo !== '/') {
+        navigate(redirectTo);
       } else {
         navigate('/');
       }
@@ -46,12 +46,6 @@ const LoginPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDemoLogin = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('demo123'); // Set a demo password
-    setError('');
   };
   
   return (
@@ -83,6 +77,7 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 fullWidth
                 className="pl-10"
+                required
               />
             </div>
           </div>
@@ -97,6 +92,7 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 fullWidth
                 className="pl-10"
+                required
               />
             </div>
           </div>
@@ -122,83 +118,11 @@ const LoginPage: React.FC = () => {
         </div>
         
         <div className="mt-6 border-t pt-6">
-          <p className="text-sm font-medium text-gray-700 mb-3">
-            <strong>Comptes de démonstration :</strong>
+          <p className="text-sm text-gray-600 mb-3">
+            <strong>Pour tester l'application :</strong>
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('admin@jeffel.com')}
-              className="text-left p-2 rounded bg-green-50 hover:bg-green-100 border border-green-200 transition-colors"
-            >
-              <span className="text-green-700 font-medium">Super-Admin</span>
-              <br />
-              <span className="text-green-600">admin@jeffel.com</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('marketplace@jeffel.com')}
-              className="text-left p-2 rounded bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors"
-            >
-              <span className="text-blue-700 font-medium">Admin Marketplace</span>
-              <br />
-              <span className="text-blue-600">marketplace@jeffel.com</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('jean@exemple.com')}
-              className="text-left p-2 rounded bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors"
-            >
-              <span className="text-gray-700 font-medium">Client</span>
-              <br />
-              <span className="text-gray-600">jean@exemple.com</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('marie@exemple.com')}
-              className="text-left p-2 rounded bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors"
-            >
-              <span className="text-purple-700 font-medium">Admin Tech Paradise</span>
-              <br />
-              <span className="text-purple-600">marie@exemple.com</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('pierre@exemple.com')}
-              className="text-left p-2 rounded bg-orange-50 hover:bg-orange-100 border border-orange-200 transition-colors"
-            >
-              <span className="text-orange-700 font-medium">Admin Éco Produits</span>
-              <br />
-              <span className="text-orange-600">pierre@exemple.com</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('fatou@exemple.com')}
-              className="text-left p-2 rounded bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
-            >
-              <span className="text-indigo-700 font-medium">Gestionnaire</span>
-              <br />
-              <span className="text-indigo-600">fatou@exemple.com</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('amadou@exemple.com')}
-              className="text-left p-2 rounded bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 transition-colors"
-            >
-              <span className="text-yellow-700 font-medium">Livreur</span>
-              <br />
-              <span className="text-yellow-600">amadou@exemple.com</span>
-            </button>
-          </div>
-          
-          <p className="text-xs text-gray-500 mt-3">
-            Cliquez sur un compte pour remplir automatiquement les champs de connexion.
+          <p className="text-xs text-gray-500">
+            Créez un compte ou utilisez les données de test si elles sont disponibles dans votre base de données Supabase.
           </p>
         </div>
       </div>

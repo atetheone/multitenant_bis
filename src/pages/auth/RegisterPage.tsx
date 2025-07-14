@@ -6,34 +6,47 @@ import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 
 const RegisterPage: React.FC = () => {
-  const { register } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
   
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [accountType, setAccountType] = useState<'customer' | 'seller'>('customer');
-  const [businessName, setBusinessName] = useState('');
-  const [businessDescription, setBusinessDescription] = useState('');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    accountType: 'customer' as 'customer' | 'seller',
+    businessName: '',
+    businessDescription: ''
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !password || !confirmPassword) {
+    if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Veuillez remplir tous les champs obligatoires');
       return;
     }
     
-    if (accountType === 'seller' && (!businessName || !businessDescription)) {
+    if (formData.accountType === 'seller' && (!formData.businessName || !formData.businessDescription)) {
       setError('Veuillez remplir les informations de votre entreprise');
       return;
     }
     
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
     
@@ -41,22 +54,25 @@ const RegisterPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Pour les vendeurs, on crée un admin de tenant
-      const userRole = accountType === 'seller' ? 'admin' : 'customer';
-      const user = await register(name, email, password, userRole);
+      await signUp(formData.email, formData.password, {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        username: formData.username
+      });
       
-      // TODO: Si c'est un vendeur, créer aussi le tenant
-      // Dans une vraie application, cela se ferait côté serveur
-      
-      // Redirect based on user role
-      if (user.role === 'admin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/');
+      // TODO: If seller, create tenant after successful registration
+      if (formData.accountType === 'seller') {
+        // This would be handled in a separate API call to create the tenant
+        console.log('Seller registration - would create tenant:', {
+          name: formData.businessName,
+          description: formData.businessDescription
+        });
       }
+      
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Échec de l\'inscription. Veuillez réessayer.');
-      console.error(err);
+      console.error('Registration error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -80,16 +96,45 @@ const RegisterPage: React.FC = () => {
         )}
         
         <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                type="text"
+                placeholder="Prénom"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                fullWidth
+                className="pl-10"
+                required
+              />
+            </div>
+            
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                type="text"
+                placeholder="Nom"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                fullWidth
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+          
           <div className="mb-4">
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type="text"
-                placeholder="Nom Complet"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="Nom d'utilisateur"
+                value={formData.username}
+                onChange={(e) => handleInputChange('username', e.target.value)}
                 fullWidth
                 className="pl-10"
+                required
               />
             </div>
           </div>
@@ -100,38 +145,39 @@ const RegisterPage: React.FC = () => {
               <Input
                 type="email"
                 placeholder="Adresse Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
                 fullWidth
                 className="pl-10"
+                required
               />
             </div>
           </div>
           
-          <div className="mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type="password"
                 placeholder="Mot de Passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
                 fullWidth
                 className="pl-10"
+                required
               />
             </div>
-          </div>
-          
-          <div className="mb-6">
+            
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type="password"
                 placeholder="Confirmer le Mot de Passe"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formData.confirmPassword}
+                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                 fullWidth
                 className="pl-10"
+                required
               />
             </div>
           </div>
@@ -141,9 +187,9 @@ const RegisterPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setAccountType('customer')}
+                onClick={() => handleInputChange('accountType', 'customer')}
                 className={`p-4 border rounded-lg transition-colors text-center ${
-                  accountType === 'customer'
+                  formData.accountType === 'customer'
                     ? 'bg-blue-50 border-blue-600 text-blue-600'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
@@ -155,9 +201,9 @@ const RegisterPage: React.FC = () => {
               
               <button
                 type="button"
-                onClick={() => setAccountType('seller')}
+                onClick={() => handleInputChange('accountType', 'seller')}
                 className={`p-4 border rounded-lg transition-colors text-center ${
-                  accountType === 'seller'
+                  formData.accountType === 'seller'
                     ? 'bg-blue-50 border-blue-600 text-blue-600'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
@@ -169,7 +215,7 @@ const RegisterPage: React.FC = () => {
             </div>
           </div>
           
-          {accountType === 'seller' && (
+          {formData.accountType === 'seller' && (
             <div className="mb-6 p-4 bg-blue-50 rounded-lg">
               <h3 className="text-sm font-medium text-blue-900 mb-3">Informations de votre Entreprise</h3>
               
@@ -177,19 +223,21 @@ const RegisterPage: React.FC = () => {
                 <Input
                   type="text"
                   placeholder="Nom de votre Entreprise"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
+                  value={formData.businessName}
+                  onChange={(e) => handleInputChange('businessName', e.target.value)}
                   fullWidth
+                  required
                 />
               </div>
               
               <div>
                 <textarea
                   placeholder="Description de votre Entreprise"
-                  value={businessDescription}
-                  onChange={(e) => setBusinessDescription(e.target.value)}
+                  value={formData.businessDescription}
+                  onChange={(e) => handleInputChange('businessDescription', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   rows={3}
+                  required
                 />
               </div>
             </div>

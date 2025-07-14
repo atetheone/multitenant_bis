@@ -1,46 +1,39 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { Permission } from '../../types/permissions';
-import { usePermissions } from '../../hooks/usePermissions';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  permissions?: Permission[];
-  roles?: Array<'customer' | 'seller' | 'admin' | 'super-admin' | 'manager' | 'delivery'>;
-  requireAll?: boolean;
+  roles?: string[];
   redirectTo?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  permissions = [],
   roles = [],
-  requireAll = false,
   redirectTo = '/auth/login'
 }) => {
-  const { currentUser } = useAuth();
-  const { hasAnyPermission, hasAllPermissions } = usePermissions();
+  const { user, userProfile, loading } = useAuth();
 
-  // Vérifier si l'utilisateur est connecté
-  if (!currentUser) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Check if user is authenticated
+  if (!user || !userProfile) {
     return <Navigate to={redirectTo} replace />;
   }
 
-  // Vérifier les rôles si spécifiés
+  // Check roles if specified
   if (roles.length > 0) {
-    if (!roles.includes(currentUser.role)) {
-      return <Navigate to="/" replace />;
-    }
-  }
-
-  // Vérifier les permissions si spécifiées
-  if (permissions.length > 0) {
-    const hasAccess = requireAll 
-      ? hasAllPermissions(permissions)
-      : hasAnyPermission(permissions);
+    const userRoles = userProfile.roles?.map(ur => ur.role?.name) || [];
+    const hasRequiredRole = roles.some(role => userRoles.includes(role));
     
-    if (!hasAccess) {
+    if (!hasRequiredRole) {
       return <Navigate to="/" replace />;
     }
   }
