@@ -155,6 +155,7 @@ const LoginPage: React.FC = () => {
               <p className="font-bold text-red-600 text-center mt-3">
                 ⚠️ SANS CES ÉTAPES, LA CONNEXION ÉCHOUERA TOUJOURS!
               </p>
+            </div>
           </div>
         </div>
       </div>
