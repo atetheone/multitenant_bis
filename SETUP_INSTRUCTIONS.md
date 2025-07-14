@@ -11,8 +11,11 @@
    - Paste it into the SQL Editor
    - Click "Run" to execute the script
 
+   **IMPORTANT**: This script creates users in both Supabase Auth and your custom tables, which is required for authentication to work properly.
+
 3. **Verify the Data**
    - Check the "Table Editor" to see that all tables now have data
+   - Check the "Authentication" section to see the created users
    - You should see users, products, tenants, roles, etc.
 
 ## Step 2: Test Login Credentials
@@ -47,30 +50,39 @@ The seeder creates:
 - **Sample Orders**: Order history with items and delivery information
 - **Delivery Zones**: 7 zones covering Senegal
 - **Categories**: 6 product categories
+- **Authentication Users**: All users are created in Supabase Auth for login
 
 ## Step 4: Authentication Setup
 
-The authentication system is configured to work with Supabase Auth. When users register through the app, they will be automatically:
+The authentication system is now properly configured:
 
-1. Created in Supabase Auth
-2. Added to the custom `users` table
-3. Assigned appropriate roles
-4. Linked to the marketplace tenant
+1. **Supabase Auth Users**: All test users are created in the auth.users table
+2. **Custom User Data**: Extended user information in your custom tables
+3. **Role Assignment**: Users are automatically assigned appropriate roles
+4. **Tenant Association**: Users are linked to their respective tenants
 
 ## Troubleshooting
 
-If you encounter any issues:
+If you still encounter login issues:
 
-1. **Check Supabase Connection**: Ensure your environment variables are set
-2. **Verify RLS Policies**: Make sure Row Level Security is properly configured
+1. **Check Supabase Connection**: Ensure your environment variables are set correctly
+2. **Verify Auth Users**: In Supabase Dashboard > Authentication, check if users exist
 3. **Check Console**: Look for any JavaScript errors in the browser console
-4. **Database Permissions**: Ensure your Supabase user has the necessary permissions
+4. **RLS Policies**: Ensure Row Level Security policies allow the operations
+5. **Email Confirmation**: The seeder sets email_confirmed_at, so no email confirmation is needed
 
 ## Next Steps
 
 After running the seeder:
 
-1. Try logging in with the test accounts
+1. Try logging in with `admin@jeffel.com` / `password123`
 2. Browse the marketplace to see the products
 3. Test the admin dashboard with the super admin account
 4. Create new products and orders to test functionality
+
+## Important Notes
+
+- All test accounts use the password `password123`
+- Users are created in both Supabase Auth and custom tables
+- Email confirmation is automatically set to avoid email verification
+- The marketplace tenant serves as the main platform aggregator
