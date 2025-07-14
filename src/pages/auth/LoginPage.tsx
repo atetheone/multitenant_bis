@@ -20,6 +20,12 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Check if Supabase is properly configured
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      setError('Configuration manquante. Veuillez configurer Supabase en cliquant sur "Connect to Supabase" en haut à droite.');
+      return;
+    }
+    
     if (!email || !password) {
       setError('Veuillez saisir votre email et mot de passe');
       return;
@@ -40,9 +46,20 @@ const LoginPage: React.FC = () => {
         navigate('/');
       }
     } catch (err: any) {
-      const errorMessage = err.message || 'Une erreur est survenue lors de la connexion';
+      let errorMessage = 'Une erreur est survenue lors de la connexion';
+      
+      if (err.message?.includes('Invalid login credentials')) {
+        errorMessage = 'Email ou mot de passe incorrect. Assurez-vous d\'avoir exécuté le script de seed dans Supabase.';
+      } else if (err.message?.includes('fetch')) {
+        errorMessage = 'Impossible de se connecter à Supabase. Vérifiez votre configuration.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
       console.error('Login error:', err);
+      console.error('Supabase URL configured:', !!import.meta.env.VITE_SUPABASE_URL);
+      console.error('Supabase Key configured:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
     } finally {
       setIsLoading(false);
     }

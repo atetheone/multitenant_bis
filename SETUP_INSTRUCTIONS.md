@@ -1,88 +1,76 @@
-# Database Setup Instructions
+## Database Setup Instructions
 
-## Step 1: Run the Database Seeder
+### Step 1: Configure Supabase Connection
+
+1. **Check Environment Variables**
+   - Make sure you have clicked "Connect to Supabase" in the top right corner
+   - Or manually create a `.env` file with:
+     ```
+     VITE_SUPABASE_URL=your_supabase_project_url
+     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+     ```
+
+### Step 2: Run the Simple Authentication Seeder
 
 1. **Open your Supabase Dashboard**
    - Go to your Supabase project dashboard
    - Navigate to the "SQL Editor" section
 
-2. **Run the Seeder Script**
-   - Copy the entire content of `supabase/seed_data.sql`
+2. **Run the Simple Seeder Script**
+   - Copy the entire content of `supabase/simple_auth_seed.sql`
    - Paste it into the SQL Editor
    - Click "Run" to execute the script
 
-   **IMPORTANT**: This script creates users in both Supabase Auth and your custom tables, which is required for authentication to work properly.
+   **This script creates:**
+   - A test user in Supabase Auth: `admin@jeffel.com` / `password123`
+   - Corresponding user record in your custom tables
+   - Basic roles and tenant setup
 
-3. **Verify the Data**
-   - Check the "Table Editor" to see that all tables now have data
-   - Check the "Authentication" section to see the created users
-   - You should see users, products, tenants, roles, etc.
+### Step 3: Verify the Setup
 
-## Step 2: Test Login Credentials
+1. **Check Authentication**
+   - Go to Supabase Dashboard → Authentication → Users
+   - You should see `admin@jeffel.com` in the users list
 
-After running the seeder, you can use these test accounts:
+2. **Check Custom Tables**
+   - Go to Table Editor
+   - Verify that `users`, `roles`, `tenants` tables have data
 
-### Super Admin
-- **Email**: `admin@jeffel.com`
-- **Password**: `password123`
-- **Access**: Full platform administration
+### Step 4: Test Login
 
-### Sample Customers
-- **Email**: `aminata@example.com` / **Password**: `password123`
-- **Email**: `moussa@example.com` / **Password**: `password123`
-- **Email**: `fatou@example.com` / **Password**: `password123`
+1. **Try logging in** with:
+   - Email: `admin@jeffel.com`
+   - Password: `password123`
 
-### Vendor Admins
-- **Email**: `marie@example.com` / **Password**: `password123` (Tech Paradise)
-- **Email**: `pierre@example.com` / **Password**: `password123` (Éco Produits)
+### Troubleshooting
 
-### Delivery Person
-- **Email**: `amadou@example.com` / **Password**: `password123`
+If you still get "Invalid login credentials":
 
-## Step 3: What's Included
+1. **Check Supabase Connection**
+   - Verify your environment variables are set correctly
+   - Check browser console for configuration errors
 
-The seeder creates:
+2. **Verify User Creation**
+   - In Supabase Dashboard → Authentication, confirm the user exists
+   - Check that the user's email is confirmed (should show green checkmark)
 
-- **4 Tenants**: JefJel Marketplace (main), Tech Paradise, Éco Produits, Fashion Sénégal
-- **7 Users**: 1 Super Admin, 3 Customers, 2 Vendor Admins, 1 Delivery Person
-- **8 Products**: Electronics, eco-friendly products, African fashion
-- **Complete Role System**: 5 roles with 29 granular permissions
-- **Sample Orders**: Order history with items and delivery information
-- **Delivery Zones**: 7 zones covering Senegal
-- **Categories**: 6 product categories
-- **Authentication Users**: All users are created in Supabase Auth for login
+3. **Check RLS Policies**
+   - Ensure your tables have proper Row Level Security policies
+   - The seeder creates basic data but RLS might block access
 
-## Step 4: Authentication Setup
+4. **Browser Console**
+   - Check for any JavaScript errors
+   - Look for Supabase connection issues
 
-The authentication system is now properly configured:
+### Next Steps
 
-1. **Supabase Auth Users**: All test users are created in the auth.users table
-2. **Custom User Data**: Extended user information in your custom tables
-3. **Role Assignment**: Users are automatically assigned appropriate roles
-4. **Tenant Association**: Users are linked to their respective tenants
+Once login works:
+1. You can run the full `supabase/seed_data.sql` for complete test data
+2. Create additional users through the registration form
+3. Set up proper RLS policies for production use
 
-## Troubleshooting
+### Important Notes
 
-If you still encounter login issues:
-
-1. **Check Supabase Connection**: Ensure your environment variables are set correctly
-2. **Verify Auth Users**: In Supabase Dashboard > Authentication, check if users exist
-3. **Check Console**: Look for any JavaScript errors in the browser console
-4. **RLS Policies**: Ensure Row Level Security policies allow the operations
-5. **Email Confirmation**: The seeder sets email_confirmed_at, so no email confirmation is needed
-
-## Next Steps
-
-After running the seeder:
-
-1. Try logging in with `admin@jeffel.com` / `password123`
-2. Browse the marketplace to see the products
-3. Test the admin dashboard with the super admin account
-4. Create new products and orders to test functionality
-
-## Important Notes
-
-- All test accounts use the password `password123`
-- Users are created in both Supabase Auth and custom tables
-- Email confirmation is automatically set to avoid email verification
-- The marketplace tenant serves as the main platform aggregator
+- The simple seeder creates minimal data for authentication testing
+- Password is `password123` for all test accounts
+- This is for development/testing only - use proper signup in production
