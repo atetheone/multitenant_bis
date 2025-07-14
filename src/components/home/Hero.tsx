@@ -32,15 +32,6 @@ const Hero: React.FC = () => {
                 Acheter Maintenant
               </Button>
               
-              <Button 
-                variant="outline" 
-                size="lg" 
-                onClick={() => navigate('/register')} 
-                className="flex items-center justify-center bg-transparent border-white text-white hover:bg-white/10"
-              >
-                <Store className="w-5 h-5 mr-2" />
-                Devenir Vendeur
-              </Button>
             </div>
           </div>
           

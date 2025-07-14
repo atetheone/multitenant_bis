@@ -11,9 +11,7 @@ export interface RegisterData {
   first_name: string;
   last_name: string;
   username: string;
-  account_type?: 'customer' | 'seller';
-  business_name?: string;
-  business_description?: string;
+  account_type?: 'customer';
 }
 
 export interface UserProfile {
@@ -132,53 +130,6 @@ export const authService = {
         }
 
         // If seller, create tenant
-        if (userData.account_type === 'seller' && userData.business_name) {
-          const slug = userData.business_name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '');
-
-          const { data: newTenant, error: tenantError } = await supabase
-            .from('tenants')
-            .insert({
-              slug: slug,
-              name: userData.business_name,
-              domain: `${slug}.jeffel.com`,
-              description: userData.business_description || '',
-              status: 'pending',
-              rating: 0,
-              product_count: 0,
-              is_featured: false
-            })
-            .select()
-            .single();
-
-          if (!tenantError && newTenant) {
-            // Assign seller as admin of their tenant
-            const { data: adminRole } = await supabase
-              .from('roles')
-              .select('id')
-              .eq('name', 'admin')
-              .single();
-
-            if (adminRole) {
-              await supabase
-                .from('user_roles')
-                .insert({
-                  user_id: createdUser.id,
-                  role_id: adminRole.id
-                });
-            }
-
-            // Associate seller with their tenant
-            await supabase
-              .from('user_tenants')
-              .insert({
-                user_id: createdUser.id,
-                tenant_id: newTenant.id
-              });
-          }
-        }
       }
     }
 

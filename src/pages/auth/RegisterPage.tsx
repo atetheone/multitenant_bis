@@ -16,9 +16,7 @@ const RegisterPage: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    accountType: 'customer' as 'customer' | 'seller',
-    businessName: '',
-    businessDescription: ''
+    accountType: 'customer' as 'customer',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,11 +30,6 @@ const RegisterPage: React.FC = () => {
     
     if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Veuillez remplir tous les champs obligatoires');
-      return;
-    }
-    
-    if (formData.accountType === 'seller' && (!formData.businessName || !formData.businessDescription)) {
-      setError('Veuillez remplir les informations de votre entreprise');
       return;
     }
     
@@ -60,9 +53,7 @@ const RegisterPage: React.FC = () => {
         first_name: formData.firstName,
         last_name: formData.lastName,
         username: formData.username,
-        account_type: formData.accountType,
-        business_name: formData.businessName,
-        business_description: formData.businessDescription
+        account_type: 'customer',
       });
       
       navigate('/');
@@ -177,67 +168,6 @@ const RegisterPage: React.FC = () => {
               />
             </div>
           </div>
-          
-          <div className="mb-6">
-            <p className="text-sm font-medium text-gray-700 mb-3">Type de Compte :</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => handleInputChange('accountType', 'customer')}
-                className={`p-4 border rounded-lg transition-colors text-center ${
-                  formData.accountType === 'customer'
-                    ? 'bg-blue-50 border-blue-600 text-blue-600'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <User className="w-6 h-6 mx-auto mb-2" />
-                <div className="font-medium">Client</div>
-                <div className="text-xs mt-1">Acheter des produits</div>
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => handleInputChange('accountType', 'seller')}
-                className={`p-4 border rounded-lg transition-colors text-center ${
-                  formData.accountType === 'seller'
-                    ? 'bg-blue-50 border-blue-600 text-blue-600'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Store className="w-6 h-6 mx-auto mb-2" />
-                <div className="font-medium">Vendeur</div>
-                <div className="text-xs mt-1">Créer une boutique</div>
-              </button>
-            </div>
-          </div>
-          
-          {formData.accountType === 'seller' && (
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-900 mb-3">Informations de votre Entreprise</h3>
-              
-              <div className="mb-4">
-                <Input
-                  type="text"
-                  placeholder="Nom de votre Entreprise"
-                  value={formData.businessName}
-                  onChange={(e) => handleInputChange('businessName', e.target.value)}
-                  fullWidth
-                  required
-                />
-              </div>
-              
-              <div>
-                <textarea
-                  placeholder="Description de votre Entreprise"
-                  value={formData.businessDescription}
-                  onChange={(e) => handleInputChange('businessDescription', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                  rows={3}
-                  required
-                />
-              </div>
-            </div>
-          )}
           
           <Button 
             variant="primary" 
