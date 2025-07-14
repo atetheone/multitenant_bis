@@ -54,20 +54,16 @@ const RegisterPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      await signUp(formData.email, formData.password, {
+      await signUp({
+        email: formData.email,
+        password: formData.password,
         first_name: formData.firstName,
         last_name: formData.lastName,
-        username: formData.username
+        username: formData.username,
+        account_type: formData.accountType,
+        business_name: formData.businessName,
+        business_description: formData.businessDescription
       });
-      
-      // TODO: If seller, create tenant after successful registration
-      if (formData.accountType === 'seller') {
-        // This would be handled in a separate API call to create the tenant
-        console.log('Seller registration - would create tenant:', {
-          name: formData.businessName,
-          description: formData.businessDescription
-        });
-      }
       
       navigate('/');
     } catch (err: any) {

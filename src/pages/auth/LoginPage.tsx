@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      await signIn(email, password);
+      await signIn({ email, password });
       
       // Redirect based on redirect parameter or to home
       if (redirectTo === 'checkout') {
@@ -121,8 +121,11 @@ const LoginPage: React.FC = () => {
           <p className="text-sm text-gray-600 mb-3">
             <strong>Pour tester l'application :</strong>
           </p>
-          <p className="text-xs text-gray-500">
-            Créez un compte ou utilisez les données de test si elles sont disponibles dans votre base de données Supabase.
+          <div className="text-xs text-gray-500 space-y-2">
+            <p><strong>Super Admin:</strong> admin@jeffel.com / password123</p>
+            <p><strong>Client:</strong> aminata@example.com / password123</p>
+            <p>Ou créez un nouveau compte</p>
+          </div>
           </p>
         </div>
       </div>
