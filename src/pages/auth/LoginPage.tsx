@@ -135,13 +135,15 @@ const LoginPage: React.FC = () => {
         </div>
         
         <div className="mt-6 border-t pt-6">
-          <p className="text-sm text-gray-600 mb-3">
-            <strong>Pour tester l'application :</strong>
-          </p>
-          <div className="text-xs text-gray-500 space-y-2">
-            <p><strong>Super Admin:</strong> admin@jeffel.com / password123</p>
-            <p><strong>Client:</strong> aminata@example.com / password123</p>
-            <p>Ou créez un nouveau compte</p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <p className="text-sm font-medium text-yellow-800 mb-2">
+              ⚠️ Configuration requise
+            </p>
+            <div className="text-xs text-yellow-700 space-y-1">
+              <p>1. Exécutez le script SQL dans Supabase</p>
+              <p>2. Créez l'utilisateur admin@jeffel.com dans Auth</p>
+              <p>3. Mot de passe: password123</p>
+            </div>
           </div>
         </div>
       </div>

@@ -196,41 +196,46 @@ export const authService = {
   },
 
   async getUserProfile(email: string): Promise<UserProfile | null> {
-    const { data, error } = await supabase
-      .from('users')
-      .select(`
-        *,
-        user_profiles!inner(bio, phone, avatar_url, website),
-        user_roles!inner(
-          roles!inner(name)
-        ),
-        user_tenants!inner(
-          tenants!inner(id, name, slug)
-        )
-      `)
-      .eq('email', email)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select(`
+          *,
+          user_profiles(bio, phone, avatar_url, website),
+          user_roles(
+            roles(name)
+          ),
+          user_tenants(
+            tenants(id, name, slug)
+          )
+        `)
+        .eq('email', email)
+        .single();
 
-    if (error) {
-      console.error('Error fetching user profile:', error);
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
+
+      if (data) {
+        return {
+          id: data.id,
+          username: data.username,
+          email: data.email,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          status: data.status,
+          profile: data.user_profiles?.[0] || null,
+          roles: data.user_roles || [],
+          tenants: data.user_tenants || []
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Exception in getUserProfile:', error);
       return null;
     }
-
-    if (data) {
-      return {
-        id: data.id,
-        username: data.username,
-        email: data.email,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        status: data.status,
-        profile: data.user_profiles?.[0] || null,
-        roles: data.user_roles || [],
-        tenants: data.user_tenants || []
-      };
-    }
-
-    return null;
   },
 
   async updateProfile(userId: number, updates: Partial<UserProfile>) {

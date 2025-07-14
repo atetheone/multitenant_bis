@@ -10,23 +10,30 @@
      VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
      ```
 
-### Step 2: Run the Simple Authentication Seeder
+### Step 2: Create Authentication User
+
+**IMPORTANT**: You must create the user in Supabase Auth first!
+
+1. **Go to Supabase Dashboard → Authentication → Users**
+2. **Click "Add User"**
+3. **Enter:**
+   - Email: `admin@jeffel.com`
+   - Password: `password123`
+   - Email Confirm: ✅ (checked)
+4. **Click "Create User"**
+
+### Step 3: Run the Database Setup Script
 
 1. **Open your Supabase Dashboard**
    - Go to your Supabase project dashboard
    - Navigate to the "SQL Editor" section
 
-2. **Run the Simple Seeder Script**
-   - Copy the entire content of `supabase/simple_auth_seed.sql`
+2. **Run the Setup Script**
+   - Copy the entire content of `supabase/fix_auth_setup.sql`
    - Paste it into the SQL Editor
    - Click "Run" to execute the script
 
-   **This script creates:**
-   - A test user in Supabase Auth: `admin@jeffel.com` / `password123`
-   - Corresponding user record in your custom tables
-   - Basic roles and tenant setup
-
-### Step 3: Verify the Setup
+### Step 4: Verify the Setup
 
 1. **Check Authentication**
    - Go to Supabase Dashboard → Authentication → Users
@@ -34,9 +41,9 @@
 
 2. **Check Custom Tables**
    - Go to Table Editor
-   - Verify that `users`, `roles`, `tenants` tables have data
+   - Verify that `users`, `user_profiles`, `user_roles`, `user_tenants` tables have data
 
-### Step 4: Test Login
+### Step 5: Test Login
 
 1. **Try logging in** with:
    - Email: `admin@jeffel.com`
@@ -44,33 +51,24 @@
 
 ### Troubleshooting
 
-If you still get "Invalid login credentials":
+**If you get "Invalid login credentials":**
+1. Verify the user exists in Supabase Dashboard → Authentication → Users
+2. Make sure the email is confirmed (green checkmark)
+3. Try resetting the password in the Auth dashboard
 
-1. **Check Supabase Connection**
-   - Verify your environment variables are set correctly
-   - Check browser console for configuration errors
+**If you get "JSON object requested, multiple (or no) rows returned":**
+1. Make sure you ran the `fix_auth_setup.sql` script
+2. Check that the user exists in the `public.users` table
+3. Verify the user has entries in `user_profiles`, `user_roles`, and `user_tenants`
 
-2. **Verify User Creation**
-   - In Supabase Dashboard → Authentication, confirm the user exists
-   - Check that the user's email is confirmed (should show green checkmark)
-
-3. **Check RLS Policies**
-   - Ensure your tables have proper Row Level Security policies
-   - The seeder creates basic data but RLS might block access
-
-4. **Browser Console**
-   - Check for any JavaScript errors
-   - Look for Supabase connection issues
-
-### Next Steps
-
-Once login works:
-1. You can run the full `supabase/seed_data.sql` for complete test data
-2. Create additional users through the registration form
-3. Set up proper RLS policies for production use
+**If profile fetching fails:**
+1. Check Row Level Security policies on your tables
+2. Ensure the user has proper permissions
+3. Verify the database schema is up to date
 
 ### Important Notes
 
-- The simple seeder creates minimal data for authentication testing
-- Password is `password123` for all test accounts
+- **You MUST create the user in Supabase Auth first** before running the SQL script
+- The SQL script only creates the custom table entries, not the auth user
 - This is for development/testing only - use proper signup in production
+- All test accounts use `password123` as the password
