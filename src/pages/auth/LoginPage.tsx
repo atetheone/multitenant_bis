@@ -52,6 +52,8 @@ const LoginPage: React.FC = () => {
         errorMessage = 'Email ou mot de passe incorrect. Assurez-vous d\'avoir exécuté le script de seed dans Supabase.';
       } else if (err.message?.includes('User not found')) {
         errorMessage = 'Utilisateur non trouvé. Veuillez créer l\'utilisateur admin@jeffel.com dans Supabase Auth Dashboard.';
+      } else if (err.message?.includes('JSON object requested')) {
+        errorMessage = 'Profil utilisateur manquant. Veuillez exécuter le script supabase/fix_auth_setup.sql dans SQL Editor.';
       } else if (err.message?.includes('fetch')) {
         errorMessage = 'Impossible de se connecter à Supabase. Vérifiez votre configuration.';
       } else if (err.message) {

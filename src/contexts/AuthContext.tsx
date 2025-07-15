@@ -80,9 +80,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const fetchUserProfile = async (email: string) => {
     try {
       const profile = await authService.getUserProfile(email);
-      setUserProfile(profile);
+      if (profile) {
+        setUserProfile(profile);
+      } else {
+        console.warn(`User profile not found for ${email}. User may need to complete setup in custom database tables.`);
+        setUserProfile(null);
+      }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
+      setUserProfile(null);
     }
   };
 

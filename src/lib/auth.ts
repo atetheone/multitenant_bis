@@ -148,7 +148,7 @@ export const authService = {
 
   async getUserProfile(email: string): Promise<UserProfile | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from('users')
         .select(`
           *,
@@ -161,28 +161,33 @@ export const authService = {
           )
         `)
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
       if (error) {
+        if (error.code === 'PGRST116') {
+          console.warn(`No user profile found for email: ${email}. User may need to be created in custom tables.`);
+          return null;
+        }
         console.error('Error fetching user profile:', error);
         return null;
       }
 
-      if (data) {
-        return {
-          id: data.id,
-          username: data.username,
-          email: data.email,
-          first_name: data.first_name,
-          last_name: data.last_name,
-          status: data.status,
-          profile: data.user_profiles?.[0] || null,
-          roles: data.user_roles || [],
-          tenants: data.user_tenants || []
-        };
+      if (!data) {
+        console.warn(`No user record found in custom tables for: ${email}`);
+        return null;
       }
 
-      return null;
+      return {
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        status: data.status,
+        profile: data.user_profiles?.[0] || null,
+        roles: data.user_roles || [],
+        tenants: data.user_tenants || []
+      };
     } catch (error) {
       console.error('Exception in getUserProfile:', error);
       return null;
