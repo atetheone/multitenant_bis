@@ -1,7 +1,50 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
-import { authService, UserProfile, LoginCredentials, RegisterData } from '../lib/auth';
+import { mockAuthService } from '../lib/mockAuth';
+
+// Use mock auth instead of real Supabase
+const USE_MOCK_AUTH = true;
+
+interface UserProfile {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  status: 'active' | 'inactive' | 'suspended' | 'pending';
+  profile?: {
+    bio: string | null;
+    phone: string | null;
+    avatar_url: string | null;
+    website: string | null;
+  };
+  roles?: Array<{
+    role: {
+      name: string;
+    };
+  }>;
+  tenants?: Array<{
+    tenant: {
+      id: number;
+      name: string;
+      slug: string;
+    };
+  }>;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface RegisterData {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  account_type?: 'customer';
+}
 
 interface AuthContextType {
   user: SupabaseUser | null;
@@ -49,6 +92,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (USE_MOCK_AUTH) {
+      // Initialize mock auth
+      mockAuthService.initializeSession();
+      checkMockSession();
+    } else {
+      // Original Supabase auth code
+      initializeSupabaseAuth();
+    }
+  }, []);
+
+  const checkMockSession = async () => {
+    try {
+      const currentUser = await mockAuthService.getCurrentUser();
+      if (currentUser) {
+        // Create mock session
+        const mockSession = {
+          access_token: `mock-token-${currentUser.id}`,
+          user: {
+            id: currentUser.id,
+            email: currentUser.email,
+            user_metadata: {
+              first_name: currentUser.first_name,
+              last_name: currentUser.last_name
+            }
+          }
+        } as any;
+        
+        setSession(mockSession);
+        setUser(mockSession.user);
+        await fetchUserProfile(currentUser.email);
+      }
+    } catch (error) {
+      console.error('Error checking mock session:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initializeSupabaseAuth = async () => {
+    const { supabase } = await import('../lib/supabase');
+    const { authService } = await import('../lib/auth');
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -75,19 +160,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  };
 
   const fetchUserProfile = async (email: string) => {
     try {
-      const profile = await authService.getUserProfile(email);
+      const profile = await mockAuthService.getUserProfile(email);
       if (profile) {
         setUserProfile(profile);
       } else {
-        console.warn(`User profile not found for ${email}. User may need to complete setup in custom database tables.`);
+        console.warn(`User profile not found for ${email}`);
         setUserProfile(null);
       }
     } catch (error) {
-      console.error('Error in fetchUserProfile:', error);
+      console.error('Error fetching user profile:', error);
       setUserProfile(null);
     }
   };
@@ -95,7 +180,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signIn = async (credentials: LoginCredentials) => {
     setLoading(true);
     try {
-      await authService.signIn(credentials);
+      const result = await mockAuthService.signIn(credentials.email, credentials.password);
+      
+      // Set session and user
+      setSession(result.session as any);
+      setUser(result.user as any);
+      
+      // Fetch profile
+      await fetchUserProfile(credentials.email);
     } catch (error: any) {
       throw new Error(error.message || 'Erreur de connexion');
     } finally {
@@ -106,7 +198,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUp = async (userData: RegisterData) => {
     setLoading(true);
     try {
-      await authService.signUp(userData);
+      await mockAuthService.signUp(userData);
     } catch (error: any) {
       throw new Error(error.message || 'Erreur lors de l\'inscription');
     } finally {
@@ -115,19 +207,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signOut = async () => {
-    await authService.signOut();
+    await mockAuthService.signOut();
+    setUser(null);
+    setUserProfile(null);
+    setSession(null);
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!userProfile) return;
-
-    try {
-      await authService.updateProfile(userProfile.id, updates);
-      // Refresh user profile
-      await fetchUserProfile(userProfile.email);
-    } catch (error: any) {
-      throw new Error(error.message || 'Erreur lors de la mise à jour du profil');
-    }
+    // Mock implementation - in real app this would update the backend
+    console.log('Profile update:', updates);
   };
 
   // Legacy support for existing components

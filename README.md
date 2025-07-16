@@ -1,10 +1,10 @@
 # JefJel - Plateforme E-commerce Multilocataire
 
-Une plateforme e-commerce multilocataire moderne construite avec React, TypeScript, Tailwind CSS et Supabase.
+Une plateforme e-commerce multilocataire moderne construite avec React, TypeScript, Tailwind CSS et un système d'authentification mock pour le développement.
 
 ## 🚀 Fonctionnalités
 
-- **Authentification complète** avec Supabase Auth
+- **Authentification complète** avec système mock intégré
 - **Système multilocataire** avec gestion des vendeurs
 - **Gestion des rôles et permissions** granulaire
 - **Marketplace** avec produits de différents vendeurs
@@ -16,7 +16,7 @@ Une plateforme e-commerce multilocataire moderne construite avec React, TypeScri
 ## 🛠️ Technologies
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **Backend**: Système mock en mémoire (pour développement)
 - **Routing**: React Router v6
 - **Icons**: Lucide React
 - **Build Tool**: Vite
@@ -29,25 +29,35 @@ Une plateforme e-commerce multilocataire moderne construite avec React, TypeScri
    npm install
    ```
 
-3. Configurez Supabase:
-   - Créez un projet Supabase
-   - Cliquez sur "Connect to Supabase" dans l'interface
-   - Ou configurez manuellement les variables d'environnement
-
-4. Initialisez la base de données:
-   ```bash
-   # Appliquez les migrations
-   npx supabase db push
-   
-   # Ou exécutez le fichier de seed directement dans Supabase
-   ```
-
-5. Lancez l'application:
+3. Lancez l'application:
    ```bash
    npm run dev
    ```
 
+## 🔐 Comptes de Test
+
+L'application utilise un système d'authentification mock avec des comptes pré-configurés :
+
+### Super Administrateur
+- **Email**: admin@jeffel.com
+- **Mot de passe**: password123
+- **Accès**: Tableau de bord complet, gestion des tenants
+
+### Clients
+- **Email**: aminata@example.com / **Mot de passe**: password123
+- **Email**: moussa@example.com / **Mot de passe**: password123
+
+### Administrateur Tenant
+- **Email**: marie@exemple.com / **Mot de passe**: password123
+- **Accès**: Gestion de Tech Paradise
+
+### Livreur
+- **Email**: amadou@exemple.com / **Mot de passe**: password123
+- **Accès**: Interface de livraison
+
 ## 🗄️ Structure de la Base de Données
+
+Le système utilise des données mock en mémoire qui simulent la structure suivante :
 
 ### Tables Principales
 
@@ -58,15 +68,6 @@ Une plateforme e-commerce multilocataire moderne construite avec React, TypeScri
 - **orders**: Commandes des clients
 - **roles**: Rôles du système
 - **permissions**: Permissions granulaires
-
-### Données de Test
-
-Le système inclut des données de test pré-configurées:
-
-- **Super Admin**: admin@jeffel.com / password123
-- **Clients de test**: aminata@example.com, moussa@example.com, fatou@example.com
-- **Vendeurs**: Tech Paradise, Éco Produits, Fashion Sénégal
-- **Produits**: Échantillon de produits dans différentes catégories
 
 ## 👥 Système de Rôles
 
@@ -142,19 +143,9 @@ Le système utilise un modèle de permissions granulaire avec des scopes:
 
 ## 🔧 Configuration
 
-### Variables d'Environnement
+Le système fonctionne avec des données mock en mémoire, aucune configuration de base de données n'est requise pour le développement.
 
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### Supabase Setup
-
-1. Créez les tables avec les migrations fournies
-2. Configurez RLS sur toutes les tables
-3. Exécutez le script de seed pour les données initiales
-4. Configurez l'authentification email/password
+Pour passer à une vraie base de données Supabase, modifiez la constante `USE_MOCK_AUTH` dans `src/contexts/AuthContext.tsx`.
 
 ## 🚀 Déploiement
 

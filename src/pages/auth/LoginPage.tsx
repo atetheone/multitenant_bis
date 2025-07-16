@@ -20,12 +20,6 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if Supabase is properly configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      setError('Configuration manquante. Veuillez configurer Supabase en cliquant sur "Connect to Supabase" en haut à droite.');
-      return;
-    }
-    
     if (!email || !password) {
       setError('Veuillez saisir votre email et mot de passe');
       return;
@@ -46,7 +40,7 @@ const LoginPage: React.FC = () => {
     } catch (err: any) {
       let errorMessage = 'Une erreur est survenue lors de la connexion';
       
-      if (err.message?.includes('Invalid login credentials')) {
+      if (err.message?.includes('Invalid login credentials') || err.message?.includes('credentials')) {
         errorMessage = 'Email ou mot de passe incorrect';
       } else if (err.message?.includes('User not found')) {
         errorMessage = 'Utilisateur non trouvé';
@@ -54,8 +48,6 @@ const LoginPage: React.FC = () => {
         errorMessage = 'Profil utilisateur manquant';
       } else if (err.message?.includes('fetch')) {
         errorMessage = 'Impossible de se connecter à Supabase. Vérifiez votre configuration.';
-      } else if (err.message) {
-        errorMessage = err.message;
       }
       
       setError(errorMessage);
