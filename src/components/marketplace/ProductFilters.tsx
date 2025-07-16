@@ -128,8 +128,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>{priceRange[0]}€</span>
-              <span>{priceRange[1]}€</span>
+              <span>{priceRange[0].toLocaleString()} FCFA</span>
+              <span>{priceRange[1].toLocaleString()} FCFA</span>
             </div>
           </div>
         </div>

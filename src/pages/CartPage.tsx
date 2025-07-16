@@ -136,7 +136,7 @@ const CartPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-gray-600">Sous-total</span>
-                <span className="text-gray-900">{totalPrice.toFixed(2)}€</span>
+                <span className="text-gray-900">{totalPrice.toLocaleString()} FCFA</span>
               </div>
               
               <div className="flex justify-between">
@@ -146,14 +146,14 @@ const CartPage: React.FC = () => {
               
               <div className="flex justify-between">
                 <span className="text-gray-600">TVA</span>
-                <span className="text-gray-900">{(totalPrice * 0.2).toFixed(2)}€</span>
+                <span className="text-gray-900">{(totalPrice * 0.2).toLocaleString()} FCFA</span>
               </div>
               
               <div className="border-t border-gray-200 pt-4 mt-4">
                 <div className="flex justify-between font-medium">
                   <span className="text-gray-900">Total</span>
                   <span className="text-blue-600 text-xl">
-                    {(totalPrice + (totalPrice * 0.2)).toFixed(2)}€
+                    {(totalPrice + (totalPrice * 0.2)).toLocaleString()} FCFA
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">TVA incluse</p>

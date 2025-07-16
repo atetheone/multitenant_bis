@@ -181,7 +181,7 @@ const ProductsPage: React.FC = () => {
       key: 'price', 
       label: 'Prix', 
       sortable: true,
-      render: (value: number) => `${value.toFixed(2)}€`
+      render: (value: number) => `${value.toLocaleString()} FCFA`
     },
     { 
       key: 'stock', 
@@ -318,7 +318,7 @@ const ProductsPage: React.FC = () => {
                       <div>
                         <p className="text-sm text-gray-600">Marge</p>
                         <p className="text-lg font-bold text-green-600">{product.margin.toFixed(1)}%</p>
-                      </div>
+                      <p className="text-lg font-bold text-blue-600">{product.price.toLocaleString()} FCFA</p>
                     </div>
                   </div>
                 </div>
@@ -363,22 +363,22 @@ const ProductsPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Prix de revient:</span>
-                    <span className="font-medium">{product.cost.toFixed(2)}€</span>
+                    <span className="font-medium">{product.cost.toLocaleString()} FCFA</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Prix de vente:</span>
-                    <span className="font-medium">{product.price.toFixed(2)}€</span>
+                    <span className="font-medium">{product.price.toLocaleString()} FCFA</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Marge unitaire:</span>
                     <span className="font-medium text-green-600">
-                      {(product.price - product.cost).toFixed(2)}€
+                      {(product.price - product.cost).toLocaleString()} FCFA
                     </span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="text-gray-600">Bénéfice total:</span>
                     <span className="font-bold text-green-600">
-                      {((product.price - product.cost) * product.sales).toFixed(2)}€
+                      {((product.price - product.cost) * product.sales).toLocaleString()} FCFA
                     </span>
                   </div>
                 </div>
