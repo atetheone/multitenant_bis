@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogIn, User, Lock, AlertCircle } from 'lucide-react';
+import { LogIn, User, Lock } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -36,8 +36,6 @@ const LoginPage: React.FC = () => {
     
     try {
       await signIn({ email, password });
-      
-      // Redirect based on redirect parameter or to home
       if (redirectTo === 'checkout') {
         navigate('/checkout');
       } else if (redirectTo !== '/') {
@@ -49,11 +47,11 @@ const LoginPage: React.FC = () => {
       let errorMessage = 'Une erreur est survenue lors de la connexion';
       
       if (err.message?.includes('Invalid login credentials')) {
-        errorMessage = 'Email ou mot de passe incorrect. Assurez-vous d\'avoir exécuté le script de seed dans Supabase.';
+        errorMessage = 'Email ou mot de passe incorrect';
       } else if (err.message?.includes('User not found')) {
-        errorMessage = 'Utilisateur non trouvé. Veuillez créer l\'utilisateur admin@jeffel.com dans Supabase Auth Dashboard.';
+        errorMessage = 'Utilisateur non trouvé';
       } else if (err.message?.includes('JSON object requested')) {
-        errorMessage = 'Profil utilisateur manquant. Veuillez exécuter le script supabase/fix_auth_setup.sql dans SQL Editor.';
+        errorMessage = 'Profil utilisateur manquant';
       } else if (err.message?.includes('fetch')) {
         errorMessage = 'Impossible de se connecter à Supabase. Vérifiez votre configuration.';
       } else if (err.message) {
@@ -61,9 +59,6 @@ const LoginPage: React.FC = () => {
       }
       
       setError(errorMessage);
-      console.error('Login error:', err);
-      console.error('Supabase URL configured:', !!import.meta.env.VITE_SUPABASE_URL);
-      console.error('Supabase Key configured:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
     } finally {
       setIsLoading(false);
     }
@@ -81,9 +76,8 @@ const LoginPage: React.FC = () => {
       
       <div className="p-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-6 flex items-start">
-            <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
-            <span>{error}</span>
+          <div className="bg-red-50 text-red-700 p-4 rounded-md mb-6">
+            {error}
           </div>
         )}
         
@@ -136,29 +130,6 @@ const LoginPage: React.FC = () => {
               S'inscrire
             </Link>
           </p>
-        </div>
-        
-        <div className="mt-6 border-t pt-6">
-          <div className="bg-red-50 border-2 border-red-300 rounded-md p-4">
-            <p className="text-lg font-bold text-red-800 mb-3 flex items-center">
-              🚨 SETUP REQUIS - Lisez COMPLETE_SETUP_GUIDE.md
-            </p>
-            <div className="text-sm text-red-700 space-y-2">
-              <p className="font-bold">ÉTAPES OBLIGATOIRES :</p>
-              <div className="bg-red-100 p-3 rounded border-l-4 border-red-500">
-                <p className="font-bold">1. Créer utilisateur dans Supabase Auth Dashboard</p>
-                <p>Email: admin@jeffel.com | Password: password123</p>
-                <p className="text-red-600">✅ Email Confirm DOIT être coché!</p>
-              </div>
-              <div className="bg-red-100 p-3 rounded border-l-4 border-red-500">
-                <p className="font-bold">2. Exécuter supabase/fix_auth_setup.sql</p>
-                <p>Dans Supabase Dashboard → SQL Editor</p>
-              </div>
-              <p className="font-bold text-red-600 text-center mt-3">
-                ⚠️ SANS CES ÉTAPES, LA CONNEXION ÉCHOUERA TOUJOURS!
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
