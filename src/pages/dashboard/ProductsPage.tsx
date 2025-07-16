@@ -318,7 +318,7 @@ const ProductsPage: React.FC = () => {
                       <div>
                         <p className="text-sm text-gray-600">Marge</p>
                         <p className="text-lg font-bold text-green-600">{product.margin.toFixed(1)}%</p>
-                      <p className="text-lg font-bold text-blue-600">{product.price.toLocaleString()} FCFA</p>
+                      </div>
                     </div>
                   </div>
                 </div>
