@@ -17,6 +17,7 @@ import MarketplacePage from './pages/MarketplacePage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
+import CustomerOrdersPage from './pages/CustomerOrdersPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 
@@ -49,10 +50,7 @@ function App() {
               
               <Route path="customer/orders" element={
                 <ProtectedRoute roles={['customer']}>
-                  <div className="container mx-auto px-4 py-16 text-center">
-                    <h1 className="text-2xl font-bold">Mes Commandes</h1>
-                    <p className="mt-4 text-gray-600">Historique de vos commandes et suivi des livraisons.</p>
-                  </div>
+                  <CustomerOrdersPage />
                 </ProtectedRoute>
               } />
               

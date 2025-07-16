@@ -19,12 +19,15 @@ import {
   Edit
 } from 'lucide-react';
 import { usePermissions } from '../../hooks/usePermissions';
+import { useDeliveries, useUpdateDeliveryStatus } from '../../hooks/useSupabase';
 import DataTable from '../../components/dashboard/DataTable';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 
 const DeliveriesPage: React.FC = () => {
   const { isDelivery } = usePermissions();
+  const { data: deliveries, loading, error, refetch } = useDeliveries();
+  const updateDeliveryStatus = useUpdateDeliveryStatus();
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -176,9 +179,19 @@ const DeliveriesPage: React.FC = () => {
     setSelectedDelivery(delivery);
   };
 
-  const handleUpdateStatus = (deliveryId: string, newStatus: string) => {
-    console.log(`Updating delivery ${deliveryId} to status ${newStatus}`);
-    // Ici on mettrait à jour le statut dans la base de données
+  const handleUpdateStatus = async (deliveryId: number, newStatus: string) => {
+    try {
+      await updateDeliveryStatus.mutate({ 
+        id: deliveryId, 
+        status: newStatus,
+        notes: `Statut mis à jour vers ${newStatus} le ${new Date().toLocaleString()}`
+      });
+      refetch();
+      alert(`Statut de la livraison mis à jour avec succès`);
+    } catch (error) {
+      console.error('Error updating delivery status:', error);
+      alert('Erreur lors de la mise à jour du statut');
+    }
   };
 
   const DeliveryDetailModal = ({ delivery, onClose }: { delivery: any; onClose: () => void }) => (
@@ -341,7 +354,7 @@ const DeliveriesPage: React.FC = () => {
           <div className="flex space-x-4">
             <select 
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => handleUpdateStatus(delivery.id, e.target.value)}
+              onChange={(e) => handleUpdateStatus(Number(delivery.id), e.target.value)}
               defaultValue={delivery.status}
             >
               <option value="assigned">Assignée</option>
@@ -358,6 +371,23 @@ const DeliveriesPage: React.FC = () => {
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-red-600">Erreur: {error}</p>
+        <Button onClick={refetch} className="mt-4">Réessayer</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -491,7 +521,7 @@ const DeliveriesPage: React.FC = () => {
       <DataTable
         title="Liste des Livraisons"
         columns={columns}
-        data={mockDeliveries}
+        data={deliveries || []}
         actions={{
           view: handleViewDelivery,
           edit: (row) => console.log('Edit', row),
@@ -499,7 +529,7 @@ const DeliveriesPage: React.FC = () => {
         pagination={{
           pageSize: 10,
           currentPage: 1,
-          totalItems: mockDeliveries.length,
+          totalItems: deliveries?.length || 0,
           onPageChange: (page) => console.log('Page change:', page)
         }}
       />

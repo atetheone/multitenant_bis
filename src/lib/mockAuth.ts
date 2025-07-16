@@ -18,6 +18,37 @@ interface MockUser {
   tenant_id?: string;
 }
 
+// Mock delivery zones
+const mockDeliveryZones = [
+  {
+    id: '1',
+    name: 'Dakar Centre',
+    region: 'Dakar',
+    cities: ['Dakar', 'Plateau', 'Médina', 'Gueule Tapée'],
+    deliveryFee: 1500,
+    estimatedDeliveryTime: '2-4 heures',
+    isActive: true,
+  },
+  {
+    id: '2',
+    name: 'Dakar Banlieue',
+    region: 'Dakar',
+    cities: ['Pikine', 'Guédiawaye', 'Parcelles Assainies', 'Grand Yoff'],
+    deliveryFee: 2000,
+    estimatedDeliveryTime: '4-6 heures',
+    isActive: true,
+  },
+  {
+    id: '3',
+    name: 'Rufisque',
+    region: 'Dakar',
+    cities: ['Rufisque', 'Bargny', 'Diamniadio'],
+    deliveryFee: 2500,
+    estimatedDeliveryTime: '6-8 heures',
+    isActive: true,
+  }
+];
+
 // Mock Users Database
 const mockUsers: MockUser[] = [
   {
@@ -451,6 +482,404 @@ export const mockAuthService = {
     }
     
     return Promise.resolve(filtered);
+  },
+
+  async getDeliveryZonesByCity(city: string) {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const matchingZones = mockDeliveryZones.filter(zone => 
+      zone.cities.some(zoneCity => 
+        zoneCity.toLowerCase().includes(city.toLowerCase())
+      )
+    );
+    return {
+      success: true,
+      data: matchingZones
+    };
+  },
+
+  async getDeliveryZonesByTenant(tenantId: number) {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return {
+      success: true,
+      data: mockDeliveryZones
+    };
+  },
+
+  // Orders
+  async getOrders(params?: any) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Mock orders data
+    const mockOrders = [
+      {
+        id: 1,
+        user_id: 1,
+        tenant_id: 2,
+        payment_method: 'Mobile Money',
+        subtotal: 129990,
+        delivery_fee: 1500,
+        total: 131490,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        address: {
+          address_line1: '123 Rue de la Paix',
+          city: 'Dakar',
+          country: 'Sénégal'
+        },
+        delivery_zone: {
+          name: 'Dakar Centre',
+          fee: 1500
+        },
+        items: [
+          {
+            product_id: 1,
+            quantity: 1,
+            unit_price: 129990,
+            product: {
+              name: 'Écouteurs Sans Fil Premium',
+              sku: 'ECO-001'
+            }
+          }
+        ]
+      },
+      {
+        id: 2,
+        user_id: 1,
+        tenant_id: 3,
+        payment_method: 'Paiement à la livraison',
+        subtotal: 14990,
+        delivery_fee: 2000,
+        total: 16990,
+        status: 'delivered',
+        created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+        address: {
+          address_line1: '123 Rue de la Paix',
+          city: 'Pikine',
+          country: 'Sénégal'
+        },
+        delivery_zone: {
+          name: 'Dakar Banlieue',
+          fee: 2000
+        },
+        items: [
+          {
+            product_id: 3,
+            quantity: 1,
+            unit_price: 14990,
+            product: {
+              name: 'Set Brosses à Dents Bambou',
+              sku: 'BRO-001'
+            }
+          }
+        ]
+      }
+    ];
+    
+    // Filter orders based on params
+    let filteredOrders = [...mockOrders];
+    
+    if (params?.user_id) {
+      filteredOrders = filteredOrders.filter(o => o.user_id === params.user_id);
+    }
+    
+    if (params?.tenant_id) {
+      filteredOrders = filteredOrders.filter(o => o.tenant_id === params.tenant_id);
+    }
+    
+    if (params?.status) {
+      filteredOrders = filteredOrders.filter(o => o.status === params.status);
+    }
+    
+    return {
+      success: true,
+      data: filteredOrders,
+      meta: {
+        total: filteredOrders.length,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+        from: 1,
+        to: filteredOrders.length
+      }
+    };
+  },
+
+  async createOrder(orderData: any) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const newOrder = {
+      id: Date.now(),
+      ...orderData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      status: 'pending'
+    };
+    
+    return {
+      success: true,
+      data: newOrder
+    };
+  },
+
+  async updateOrderStatus(id: number, status: string) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return {
+      success: true,
+      data: {
+        id,
+        status,
+        updated_at: new Date().toISOString()
+      }
+    };
+  },
+
+  // Delivery Zones
+  async getDeliveryZones() {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return {
+      success: true,
+      data: mockDeliveryZones
+    };
+  },
+
+  // Authentication
+  async login(credentials: { email: string; password: string }) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const user = mockUsers.find(u => u.email === credentials.email && u.password === credentials.password);
+    
+    if (!user) {
+      throw new Error('Invalid login credentials');
+    }
+    
+    if (user.status !== 'active') {
+      throw new Error('Account is not active');
+    }
+    
+    const token = `mock-token-${user.id}-${Date.now()}`;
+    currentSession = { user, token };
+    
+    // Store in localStorage for persistence
+    localStorage.setItem('mockSession', JSON.stringify(currentSession));
+    
+    return {
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          user_metadata: {
+            first_name: user.first_name,
+            last_name: user.last_name
+          }
+        },
+        session: {
+          access_token: token,
+          user: {
+            id: user.id,
+            email: user.email
+          }
+        }
+      }
+    };
+  },
+
+  // Méthode pour basculer entre mock et vraies données
+  setUseMockData(useMock: boolean) {
+    // Mock implementation
+  },
+
+  // Méthodes pour la gestion des commandes
+  async placeOrder(orderData: any) {
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const newOrder = {
+      id: Date.now(),
+      ...orderData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      status: 'pending'
+    };
+    
+    return {
+      success: true,
+      message: 'Commande créée avec succès',
+      data: newOrder
+    };
+  },
+
+  async getOrderById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Simulate fetching a specific order
+    const order = {
+      id,
+      user_id: 1,
+      tenant_id: 2,
+      payment_method: 'Mobile Money',
+      subtotal: 129990,
+      delivery_fee: 1500,
+      total: 131490,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      address: {
+        address_line1: '123 Rue de la Paix',
+        city: 'Dakar',
+        country: 'Sénégal'
+      },
+      delivery_zone: {
+        name: 'Dakar Centre',
+        fee: 1500
+      },
+      items: [
+        {
+          product_id: 1,
+          quantity: 1,
+          unit_price: 129990,
+          product: {
+            name: 'Écouteurs Sans Fil Premium',
+            sku: 'ECO-001'
+          }
+        }
+      ]
+    };
+    
+    return {
+      success: true,
+      data: order
+    };
+  },
+
+  async getDeliveries(params?: any) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Mock deliveries data
+    const mockDeliveries = [
+      {
+        id: 1,
+        order_id: 1,
+        delivery_person_id: 4,
+        notes: 'Appeler avant livraison',
+        assigned_at: new Date().toISOString(),
+        picked_at: null,
+        delivered_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        status: 'assigned',
+        order: {
+          id: 1,
+          total: 131490,
+          address: {
+            address_line1: '123 Rue de la Paix',
+            city: 'Dakar'
+          },
+          user: {
+            first_name: 'Jean',
+            last_name: 'Dupont',
+            phone: '+221 77 123 45 67'
+          }
+        },
+        delivery_person: {
+          id: 4,
+          user_id: 4,
+          first_name: 'Amadou',
+          last_name: 'Ba',
+          phone: '+221 77 123 45 67'
+        },
+        zone: {
+          name: 'Dakar Centre'
+        }
+      },
+      {
+        id: 2,
+        order_id: 2,
+        delivery_person_id: 4,
+        notes: 'Livraison effectuée',
+        assigned_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        picked_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
+        delivered_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000).toISOString(),
+        created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000).toISOString(),
+        status: 'delivered',
+        order: {
+          id: 2,
+          total: 16990,
+          address: {
+            address_line1: '123 Rue de la Paix',
+            city: 'Pikine'
+          },
+          user: {
+            first_name: 'Jean',
+            last_name: 'Dupont',
+            phone: '+221 77 123 45 67'
+          }
+        },
+        delivery_person: {
+          id: 4,
+          user_id: 4,
+          first_name: 'Amadou',
+          last_name: 'Ba',
+          phone: '+221 77 123 45 67'
+        },
+        zone: {
+          name: 'Dakar Banlieue'
+        }
+      }
+    ];
+    
+    // Filter deliveries based on params
+    let filteredDeliveries = [...mockDeliveries];
+    
+    if (params?.delivery_person_id) {
+      filteredDeliveries = filteredDeliveries.filter(d => d.delivery_person_id === params.delivery_person_id);
+    }
+    
+    if (params?.status) {
+      filteredDeliveries = filteredDeliveries.filter(d => d.status === params.status);
+    }
+    
+    return {
+      success: true,
+      data: filteredDeliveries,
+      meta: {
+        total: filteredDeliveries.length,
+        per_page: 10,
+        current_page: 1,
+        last_page: 1,
+        from: 1,
+        to: filteredDeliveries.length
+      }
+    };
+  },
+
+  async updateDeliveryStatus(id: number, status: string, notes?: string) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    let updatedFields: any = { status };
+    
+    if (status === 'picked_up') {
+      updatedFields.picked_at = new Date().toISOString();
+    } else if (status === 'delivered') {
+      updatedFields.delivered_at = new Date().toISOString();
+    }
+    
+    if (notes) {
+      updatedFields.notes = notes;
+    }
+    
+    return {
+      success: true,
+      message: 'Statut de livraison mis à jour',
+      data: {
+        id,
+        ...updatedFields,
+        updated_at: new Date().toISOString()
+      }
+    };
   },
 
   // Initialize session from localStorage on app start

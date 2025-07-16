@@ -89,9 +89,30 @@ export function useTenants(filters?: { is_featured?: boolean; status?: string })
 }
 
 export function useOrders(filters?: { user_id?: number; tenant_id?: number; status?: string }) {
-  return useSupabaseQuery(() => Promise.resolve([]), { dependencies: [JSON.stringify(filters)] });
+  return useSupabaseQuery(() => mockAuthService.getOrders(filters), { dependencies: [JSON.stringify(filters)] });
 }
 
 export function useCreateOrder() {
-  return useSupabaseMutation((orderData: any) => Promise.resolve({ id: Date.now(), ...orderData }));
+  return useSupabaseMutation((orderData: any) => mockAuthService.placeOrder(orderData));
+}
+
+export function useDeliveryZones() {
+  return useSupabaseQuery(() => mockAuthService.getDeliveryZones());
+}
+
+export function useDeliveryZonesByCity(city: string) {
+  return useSupabaseQuery(() => mockAuthService.getDeliveryZonesByCity(city), { 
+    dependencies: [city],
+    enabled: !!city
+  });
+}
+
+export function useDeliveries(filters?: { delivery_person_id?: number; status?: string }) {
+  return useSupabaseQuery(() => mockAuthService.getDeliveries(filters), { dependencies: [JSON.stringify(filters)] });
+}
+
+export function useUpdateDeliveryStatus() {
+  return useSupabaseMutation(({ id, status, notes }: { id: number; status: string; notes?: string }) => 
+    mockAuthService.updateDeliveryStatus(id, status, notes)
+  );
 }

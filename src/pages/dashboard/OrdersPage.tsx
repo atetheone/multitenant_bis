@@ -19,13 +19,14 @@ import {
   Search
 } from 'lucide-react';
 import { usePermissions } from '../../hooks/usePermissions';
-import { orders, users } from '../../data/mockData';
+import { useOrders } from '../../hooks/useSupabase';
 import DataTable from '../../components/dashboard/DataTable';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 
 const OrdersPage: React.FC = () => {
   const { isDelivery, isSuperAdmin } = usePermissions();
+  const { data: orders, loading, error, refetch } = useOrders();
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -293,6 +294,23 @@ const OrdersPage: React.FC = () => {
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-red-600">Erreur: {error}</p>
+        <Button onClick={refetch} className="mt-4">Réessayer</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -407,7 +425,7 @@ const OrdersPage: React.FC = () => {
       <DataTable
         title="Liste des Commandes"
         columns={columns}
-        data={mockOrders}
+        data={orders || []}
         actions={{
           view: handleViewOrder,
           edit: (row) => console.log('Edit', row),
@@ -415,7 +433,7 @@ const OrdersPage: React.FC = () => {
         pagination={{
           pageSize: 10,
           currentPage: 1,
-          totalItems: mockOrders.length,
+          totalItems: orders?.length || 0,
           onPageChange: (page) => console.log('Page change:', page)
         }}
       />
